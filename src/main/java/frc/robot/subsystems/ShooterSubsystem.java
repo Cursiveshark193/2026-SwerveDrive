@@ -32,7 +32,7 @@ import yams.motorcontrollers.remote.TalonFXWrapper;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-  private final TalonFX armMotor = new TalonFX(14,"rio");
+   private final TalonFX armMotor = new TalonFX(14,"rio");
   //private final TalonFX shootermotor = new TalonFX(15, "rio");
   // private final SmartMotorControllerTelemetryConfig motorTelemetryConfig = new
   // SmartMotorControllerTelemetryConfig()
