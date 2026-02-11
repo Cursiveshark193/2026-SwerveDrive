@@ -8,6 +8,7 @@ import frc.robot.Constants.OperatorConstants; // operator constants (joystick po
 import frc.robot.commands.Autos; // autonomous command factories
 import frc.robot.subsystems.ShooterSubsystem; // shooter subsystem
 import frc.robot.subsystems.SwerveSubsystem; // swerve drive subsystem
+import frc.robot.subsystems.intake;
 //import frc.robot.subsystems.intake; // intake subsystem (disabled)
 import swervelib.SwerveInputStream; // helper to build swerve input streams
 
@@ -33,7 +34,7 @@ public class RobotContainer {
   /** The robot's shooter subsystem. */
   private final ShooterSubsystem m_Shooter = new ShooterSubsystem(); // instantiate the shooter subsystem
 
-  //private final intake m_Intake = new intake(); // intake (disabled)
+  private final intake m_Intake = new intake(); // intake (disabled)
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -127,7 +128,7 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
     m_driverController.y().whileTrue(m_Shooter.setDutyCycle(-0.3)); // Y: run shooter at -30% while held
 
     //m_driverController.leftBumper().whileTrue(m_Intake.set(0.3)); // intake control (disabled)
-    //m_driverController.rightBumper().whileTrue(m_Intake.set(-0.3));
+    m_driverController.rightBumper().whileTrue(m_Intake.set(-0.3));
 
   }
 

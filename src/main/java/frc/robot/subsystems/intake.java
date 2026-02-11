@@ -61,7 +61,7 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
       // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to
       // your motor.
       // You could also use .withGearing(12) which does the same thing.
-      .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4))) // mechanism gearing config
+      .withGearing(new MechanismGearing(GearBox.fromReductionStages(5))) // mechanism gearing config
       // Motor properties to prevent over currenting.
       .withMotorInverted(false) // motor inversion setting
       .withIdleMode(MotorMode.COAST) // idle/coast behavior
@@ -70,7 +70,7 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
   private SparkMax spark = new SparkMax(16, MotorType.kBrushless); // create SparkMax on CAN ID 16
 
   // Create our SmartMotorController from our Spark and config with the NEO.
-  private SmartMotorController sparkSmartMotorController = new SparkWrapper(spark, DCMotor.getNeo550(1), smcConfig); // wrap
+  private SmartMotorController sparkSmartMotorController = new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig); // wrap
                                                                                                                      // SparkMax
                                                                                                                      // with
                                                                                                                      // YAMS
