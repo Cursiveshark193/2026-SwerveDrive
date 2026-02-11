@@ -22,8 +22,16 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import static edu.wpi.first.units.Units.Meter;
 
+/**
+ * SwerveSubsystem constructs and exposes the robot's SwerveDrive instance.
+ *
+ * <p>The subsystem uses a SwerveParser to read the swerve module configuration
+ * from the deploy directory and creates a {@link swervelib.SwerveDrive} which
+ * is used by higher-level commands to drive the robot. Telemetry verbosity is
+ * configured prior to creating the drive to reduce unnecessary allocations.
+ */
 public class SwerveSubsystem extends SubsystemBase {
-  /** Creates a new ExampleSubsystem. */
+  /** Create a new SwerveSubsystem and parse the deployed swerve configuration. */
   File directory = new File(Filesystem.getDeployDirectory(),"swerve");
   SwerveDrive  swerveDrive;
   public SwerveSubsystem() {
@@ -106,6 +114,12 @@ public class SwerveSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run during simulation
   }
 
+  /**
+   * Access the underlying {@link SwerveDrive} instance created by this
+   * subsystem.
+   *
+   * @return the configured SwerveDrive
+   */
   public SwerveDrive getSwerveDrive(){
     return swerveDrive;
   }
