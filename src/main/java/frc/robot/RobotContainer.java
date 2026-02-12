@@ -9,9 +9,9 @@ import frc.robot.commands.Autos; // autonomous command factories
 import frc.robot.subsystems.ShooterSubsystem; // shooter subsystem
 import frc.robot.subsystems.SwerveSubsystem; // swerve drive subsystem
 import frc.robot.subsystems.intake;
-//import frc.robot.subsystems.intake; // intake subsystem (disabled)
 import swervelib.SwerveInputStream; // helper to build swerve input streams
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM; // RPM unit helper
 
 import edu.wpi.first.math.geometry.Rotation2d; // 2D rotation helper
@@ -50,7 +50,7 @@ public class RobotContainer {
     
     // Set the default command to hold shooter at rest (0 RPM)
     m_Shooter.setDefaultCommand(m_Shooter.setVelocity(RPM.of(0)));
-   // m_Intake.setDefaultCommand(m_Intake.set(0)); // intake default (disabled)
+    m_Intake.setDefaultCommand(m_Intake.setAngle(Degrees.of(0))); // intake angle default (disabled)
     // Choose a default drive command depending on whether we're in sim
     drivebase.setDefaultCommand(!RobotBase.isSimulation() ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngleKeyboard);
   }
@@ -126,9 +126,15 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
     // X/Y map to open-loop duty control for quick testing
     m_driverController.x().whileTrue(m_Shooter.setDutyCycle(0.3)); // X: run shooter at 30% while held
     m_driverController.y().whileTrue(m_Shooter.setDutyCycle(-0.3)); // Y: run shooter at -30% while held
-
-    //m_driverController.leftBumper().whileTrue(m_Intake.set(0.3)); // intake control (disabled)
-    m_driverController.rightBumper().whileTrue(m_Intake.set(-0.3));
+    // Toggle the intake motor command each time the Back button is pressed
+    m_driverController.leftBumper().whileTrue(m_Intake.setAngle(Degrees.of(0)));
+    m_driverController.rightBumper().whileTrue(m_Intake.setAngle(Degrees.of(115)));
+    // Schedule `set` when the Xbox controller's B button is pressed,
+    // cancelling on release.
+    m_driverController.back().whileTrue(m_Intake.set(-0.3));
+    m_driverController.back().whileFalse(m_Intake.set(0));
+    m_driverController.start().toggleOnTrue(m_Intake.Agitate().repeatedly());
+    m_driverController.a().and(m_driverController.b()).toggleOnTrue(m_Intake.set(1));
 
   }
 
