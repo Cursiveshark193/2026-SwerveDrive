@@ -44,7 +44,8 @@ import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity; // t
  * Intake subsystem that controls the intake motor and its simulated
  * mechanism.
  *
- * <p>This class wraps a REV SparkMax with a YAMS {@code SmartMotorController}
+ * <p>
+ * This class wraps a REV SparkMax with a YAMS {@code SmartMotorController}
  * and exposes a {@link yams.mechanisms.velocity.FlyWheel} based mechanism for
  * simple velocity and open-loop control commands. Telemetry and simulation are
  * provided by the YAMS components.
@@ -77,7 +78,7 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
       .withIdleMode(MotorMode.COAST) // idle/coast behavior
       .withStatorCurrentLimit(Amps.of(40)); // stator current limit to protect hardware
 
-   private SmartMotorControllerConfig ArmConfig = new SmartMotorControllerConfig(this)
+  private SmartMotorControllerConfig ArmConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
       // Feedback Constants (PID Constants)
       .withClosedLoopController(50, 10, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
@@ -103,15 +104,15 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
   private SparkMax spark2 = new SparkMax(17, MotorType.kBrushless); // create second SparkMax on CAN ID 17 (if needed)
   // Create our SmartMotorController from our Spark and config with the NEO.
   private SmartMotorController sparkSmartMotorController = new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig); // wrap
-                                                                                                                     // SparkMax
-                                                                                                                     // with
-                                                                                                                     // YAMS
-                                                                                                                     // SmartMotorController
+                                                                                                                  // SparkMax
+                                                                                                                  // with
+                                                                                                                  // YAMS
+                                                                                                                  // SmartMotorController
   private SmartMotorController sparkSmartMotorController2 = new SparkWrapper(spark2, DCMotor.getNEO(1), ArmConfig); // second
-                                                                                                                             // motor
-                                                                                                                             // controller
-                                                                                                                             // if
-                                                                                                                             // needed
+                                                                                                                    // motor
+                                                                                                                    // controller
+                                                                                                                    // if
+                                                                                                                    // needed
   private final FlyWheelConfig intakeConfig = new FlyWheelConfig(sparkSmartMotorController) // mechanism config for
                                                                                             // intake flywheel
       // Diameter of the flywheel.
@@ -123,7 +124,7 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
       // Telemetry name and verbosity for the arm.
       .withTelemetry("intakeMech", TelemetryVerbosity.HIGH); // telemetry label for mechanism
 
-   private ArmConfig armCfg = new ArmConfig(sparkSmartMotorController2) // mechanism config for intake arm
+  private ArmConfig armCfg = new ArmConfig(sparkSmartMotorController2) // mechanism config for intake arm
       // Soft limit is applied to the SmartMotorControllers PID
       .withSoftLimits(Degrees.of(5), Degrees.of(150))
       // Hard limit is applied to the simulation.
@@ -158,8 +159,8 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
   public Command setVelocity(AngularVelocity speed) {
     return intake.setSpeed(speed);
   }
-  
-   /**
+
+  /**
    * Set the angle of the arm.
    * 
    * @param angle Angle to go to.
@@ -188,8 +189,9 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
 
   public void getAngle() {
     intakearm.getMechanismSetpoint();
-        
+
   };
+
   /** Create a new Intake subsystem. */
   public intake() {
   }
