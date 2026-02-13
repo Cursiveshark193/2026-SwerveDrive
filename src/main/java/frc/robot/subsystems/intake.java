@@ -77,7 +77,7 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
       .withIdleMode(MotorMode.COAST) // idle/coast behavior
       .withStatorCurrentLimit(Amps.of(40)); // stator current limit to protect hardware
 
-   private SmartMotorControllerConfig smcaConfig = new SmartMotorControllerConfig(this)
+   private SmartMotorControllerConfig ArmConfig = new SmartMotorControllerConfig(this)
       .withControlMode(ControlMode.CLOSED_LOOP)
       // Feedback Constants (PID Constants)
       .withClosedLoopController(50, 10, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
@@ -91,7 +91,7 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
       // In this example GearBox.fromReductionStages(3,4) is the same as
       // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to
       // your motor.
-      .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
+      .withGearing(new MechanismGearing(GearBox.fromReductionStages()))
       // Motor properties to prevent over currenting.
       .withMotorInverted(true)
       .withIdleMode(MotorMode.BRAKE)
@@ -107,7 +107,7 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
                                                                                                                      // with
                                                                                                                      // YAMS
                                                                                                                      // SmartMotorController
-  private SmartMotorController sparkSmartMotorController2 = new SparkWrapper(spark2, DCMotor.getNEO(1), smcaConfig); // second
+  private SmartMotorController sparkSmartMotorController2 = new SparkWrapper(spark2, DCMotor.getNEO(1), ArmConfig); // second
                                                                                                                              // motor
                                                                                                                              // controller
                                                                                                                              // if
