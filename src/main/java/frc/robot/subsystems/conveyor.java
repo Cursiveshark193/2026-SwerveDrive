@@ -37,7 +37,7 @@ public class conveyor extends SubsystemBase {
       .withSimFeedforward(new SimpleMotorFeedforward(0, 0, 0)) // sim feedforward gains
       .withTelemetry("conveyorMotor", TelemetryVerbosity.HIGH) // telemetry label for conveyor motor
       .withGearing(new MechanismGearing(GearBox.fromReductionStages(5))) // mechanism gearing config
-      .withMotorInverted(false) // motor inversion setting
+      .withMotorInverted(false) // motor inversion settingATRIBUTEFGREF
       .withIdleMode(MotorMode.COAST) // idle/coast behavior
       .withStatorCurrentLimit(Amps.of(40)); // stator current limit to protect hardware
 
