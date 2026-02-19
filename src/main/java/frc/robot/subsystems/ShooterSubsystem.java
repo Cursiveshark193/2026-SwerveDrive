@@ -121,16 +121,23 @@ public class ShooterSubsystem extends SubsystemBase { // subsystem that encapsul
   }
 
   /**
-   * Create a command that closes the loop to the given angular velocity.
+   * Get the current shooter follower wheel angular velocity.
    *
-   * @param speed target angular velocity
-   * @return a {@link Command} that when scheduled will drive the shooter to the
-   *     requested speed
+   * @return current angular velocity of the follower shooter mechanism
    */
-  public Command setVelocity(AngularVelocity speed) { // create a command to close-loop to target speed
-    return shooter.setSpeed(speed);
+  public Command SpinAt3000RPM() { // return current follower mechanism angular velocity
+    return shooter.setSpeed(RPM.of(3000)).andThen(shooterfollow.setSpeed(RPM.of(3000)));
+    
   }
 
+  public Command setVelocity(AngularVelocity velocity) { // return current follower mechanism angular velocity
+    return shooter.setSpeed(velocity);
+    
+  } 
+ public Command Stop() { // return current follower mechanism angular velocity
+    return shooter.setSpeed(RPM.of(0));
+    
+  }
   /**
    * Create a command to set an open-loop duty cycle on the leader shooter motor.
    *
@@ -207,14 +214,7 @@ public class ShooterSubsystem extends SubsystemBase { // subsystem that encapsul
 
   @Override
   public void simulationPeriodic() { // simulation-only updates called at sim rate
-    try {
-      follower.setDutyCycle(motor.getDutyCycle()); // mirror leader's last duty to follower so sim models move together
-    } catch (Exception ignored) { // ignore if API differences prevent get/set
-    }
-    shooter.simIterate(); // advance leader mechanism simulation
-    try {
-      shooterfollow.simIterate(); // advance follower mechanism simulation
-    } catch (Exception ignored) {
-    }
+    shooter.simIterate(); // update leader simulation
+    shooterfollow.simIterate(); // update follower simulation to keep it in sync with leader
   }
 }

@@ -8,6 +8,8 @@ import frc.robot.Constants.OperatorConstants; // operator constants (joystick po
 import frc.robot.commands.Autos; // autonomous command factories
 import frc.robot.subsystems.ShooterSubsystem; // shooter subsystem
 import frc.robot.subsystems.SwerveSubsystem; // swerve drive subsystem
+import frc.robot.subsystems.arm;
+import frc.robot.subsystems.conveyor;
 import frc.robot.subsystems.intake;
 import swervelib.SwerveInputStream; // helper to build swerve input streams
 
@@ -17,6 +19,7 @@ import static edu.wpi.first.units.Units.RPM; // RPM unit helper
 import edu.wpi.first.math.geometry.Rotation2d; // 2D rotation helper
 import edu.wpi.first.wpilibj.RobotBase; // robot base utility (simulation check)
 import edu.wpi.first.wpilibj2.command.Command; // WPILib command interface
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController; // Xbox controller wrapper for commands
 import edu.wpi.first.wpilibj2.command.button.Trigger; // Trigger wrapper for boolean suppliers
 
@@ -33,8 +36,9 @@ public class RobotContainer {
 
   /** The robot's shooter subsystem. */
   private final ShooterSubsystem m_Shooter = new ShooterSubsystem(); // instantiate the shooter subsystem
-
+  private final conveyor m_conveyor = new conveyor(); // example second mechanism for conveyor (can also be in its own subsystem if desired)
   private final intake m_Intake = new intake(); // intake (disabled)
+  private final arm m_arm = new arm();
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -49,9 +53,11 @@ public class RobotContainer {
     configureBindings(); // set up button->command mappings
     
     // Set the default command to hold shooter at rest (0 RPM)
-    m_Shooter.setDefaultCommand(m_Shooter.setVelocity(RPM.of(0)));
-    m_Intake.setDefaultCommand(m_Intake.setAngle(Degrees.of(0))); // intake angle default (disabled)
+     m_Shooter.setDefaultCommand(m_Shooter.Stop()); // default command to stop shooter
+     m_conveyor.setDefaultCommand(m_conveyor.StopConveyor()); // default command to stop conveyor
+    m_Intake.setDefaultCommand(m_Intake.IntakeOff()); // intake angle default (disabled)
     // Choose a default drive command depending on whether we're in sim
+    m_arm.setDefaultCommand(m_arm.OnStandby()); // default command to hold arm at 0 degrees
     drivebase.setDefaultCommand(!RobotBase.isSimulation() ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngleKeyboard);
   }
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(), // build input stream from controller axes
@@ -116,33 +122,27 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
    * or running the intake).
    */
   private void configureBindings() { // map controller inputs to commands
-    // Schedule `ExampleCommand` when `exampleCondition` changes to `true` (placeholder)
     
+ m_driverController.a().onTrue(m_Intake.IntakeOn(RPM.of(700))); // example: run intake when A button is pressed
+ m_driverController.start().and(m_driverController.a().onTrue(Commands.parallel(m_Intake.ReverseIntake(),m_conveyor.ReverseConveyor()))); // stop intake when A button is released
+ m_driverController.b().onTrue(m_Intake.ReverseIntake()); // example: reverse intake when B button is pressed
+ m_driverController.b().onFalse(m_Intake.IntakeOff()); // stop intake when B button is released
 
+ m_driverController.x().whileTrue(m_Shooter.SpinAt3000RPM()); // example: set shooter to 3000 RPM when X button is pressed
+ m_driverController.y().onTrue(m_Shooter.setVelocity(RPM.of(6000))); // example: stop shooter when Y button is pressed
+
+ m_driverController.leftBumper().onTrue(m_arm.Set_To_90_Degrees()); // example: set arm to 90 degrees when left bumper is pressed
+ m_driverController.rightBumper().onTrue(m_arm.StowArm()); // example: stow arm at starting position when right bumper is pressed
+ m_driverController.povUp().onTrue(m_arm.Agitate()); // example: agitate arm by moving to 10 degrees and back when D-pad up is pressed
+ m_driverController.povDown().onTrue(m_arm.OnStandby()); // example: hold arm at 40 degrees when D-pad down is pressed
+ m_driverController.povRight().whileTrue(m_arm.runAtSpeed()); // example: run arm at 50% speed while D-pad right is held
+ //m_driverController.povLeft().whileTrue(m_exampleSubsystem.set(0.9)); // example: run arm at -50% speed while D-pad left is held
+ //m_driverController.a().whileTrue(m_exampleSubsystem.setAngle(Degrees.of(45))); // example: set example subsystem to 45 degrees while right trigger is held
     // Map driver controller buttons to shooter commands
-     m_driverController.a().whileTrue(m_Shooter.setVelocity(RPM.of(6000))); // A: spin shooter to 6000 RPM while held
-    m_driverController.b().whileTrue(m_Shooter.setVelocity(RPM.of(3000))); // B: spin shooter to 3000 RPM while held
-    m_driverController.button(8).whileTrue(m_Shooter.sysId()); // button 8: run sysId (disabled)
-    // X/Y map to open-loop duty control for quick testing
-    m_driverController.x().whileTrue(m_Shooter.setDutyCycle(0.3)); // X: run shooter at 30% while held
-    m_driverController.y().whileTrue(m_Shooter.setDutyCycle(-0.3)); // Y: run shooter at -30% while held
-    // Toggle the intake motor command each time the Back button is pressed
-    m_driverController.leftBumper().whileTrue(m_Intake.setAngle(Degrees.of(0)));
-    m_driverController.rightBumper().whileTrue(m_Intake.setAngle(Degrees.of(115)));
-    // Schedule `set` when the Xbox controller's B button is pressed,
-    // cancelling on release.
-    m_driverController.back().whileTrue(m_Intake.set(-0.3));
-    m_driverController.back().whileFalse(m_Intake.set(0));
-    m_driverController.start().toggleOnTrue(m_Intake.Agitate().repeatedly());
-    m_driverController.a().and(m_driverController.b()).toggleOnTrue(m_Intake.set(1));
-
+   
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
+  
   /**
    * Returns the autonomous command to run during the autonomous period.
    *
