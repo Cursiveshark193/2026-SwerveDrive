@@ -6,11 +6,13 @@ package frc.robot; // root package for robot code
 
 import frc.robot.Constants.OperatorConstants; // operator constants (joystick ports, deadbands)
 import frc.robot.commands.Autos; // autonomous command factories
+import frc.robot.commands.RunShooterFeederConveyor;
 import frc.robot.subsystems.ShooterSubsystem; // shooter subsystem
 import frc.robot.subsystems.SwerveSubsystem; // swerve drive subsystem
 import frc.robot.subsystems.arm;
 import frc.robot.subsystems.conveyor;
 import frc.robot.subsystems.intake;
+import frc.robot.subsystems.FeederSubsystem; // example second mechanism subsystem for shooter feeder
 import swervelib.SwerveInputStream; // helper to build swerve input streams
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -20,8 +22,8 @@ import edu.wpi.first.math.geometry.Rotation2d; // 2D rotation helper
 import edu.wpi.first.wpilibj.RobotBase; // robot base utility (simulation check)
 import edu.wpi.first.wpilibj2.command.Command; // WPILib command interface
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController; // Xbox controller wrapper for commands
-import edu.wpi.first.wpilibj2.command.button.Trigger; // Trigger wrapper for boolean suppliers
 
 
 /**
@@ -38,11 +40,15 @@ public class RobotContainer {
   private final ShooterSubsystem m_Shooter = new ShooterSubsystem(); // instantiate the shooter subsystem
   private final conveyor m_conveyor = new conveyor(); // example second mechanism for conveyor (can also be in its own subsystem if desired)
   private final intake m_Intake = new intake(); // intake (disabled)
-  private final arm m_arm = new arm();
+  private final arm m_arm = new arm();  
+  private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
+  private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
 
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
     new CommandXboxController(OperatorConstants.kDriverControllerPort); // driver controller on configured port
+  private final CommandXboxController m_operatorController =
+    new CommandXboxController(OperatorConstants.kOperatorControllerPort); // operator controller on configured port
 
   /**
    * RobotContainer constructor. Creates subsystems, configures button bindings,
@@ -58,6 +64,7 @@ public class RobotContainer {
     m_Intake.setDefaultCommand(m_Intake.IntakeOff()); // intake angle default (disabled)
     // Choose a default drive command depending on whether we're in sim
     m_arm.setDefaultCommand(m_arm.OnStandby()); // default command to hold arm at 0 degrees
+    m_ShooterFeeder.setDefaultCommand(m_ShooterFeeder.Stop());
     drivebase.setDefaultCommand(!RobotBase.isSimulation() ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngleKeyboard);
   }
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(), // build input stream from controller axes
@@ -122,22 +129,13 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
    * or running the intake).
    */
   private void configureBindings() { // map controller inputs to commands
-    
- m_driverController.a().onTrue(m_Intake.IntakeOn(RPM.of(700))); // example: run intake when A button is pressed
- m_driverController.start().and(m_driverController.a().onTrue(Commands.parallel(m_Intake.ReverseIntake(),m_conveyor.ReverseConveyor()))); // stop intake when A button is released
- m_driverController.b().onTrue(m_Intake.ReverseIntake()); // example: reverse intake when B button is pressed
- m_driverController.b().onFalse(m_Intake.IntakeOff()); // stop intake when B button is released
-
- m_driverController.x().whileTrue(m_Shooter.SpinAt3000RPM()); // example: set shooter to 3000 RPM when X button is pressed
- m_driverController.y().onTrue(m_Shooter.setVelocity(RPM.of(6000))); // example: stop shooter when Y button is pressed
-
- m_driverController.leftBumper().onTrue(m_arm.Set_To_90_Degrees()); // example: set arm to 90 degrees when left bumper is pressed
- m_driverController.rightBumper().onTrue(m_arm.StowArm()); // example: stow arm at starting position when right bumper is pressed
- m_driverController.povUp().onTrue(m_arm.Agitate()); // example: agitate arm by moving to 10 degrees and back when D-pad up is pressed
- m_driverController.povDown().onTrue(m_arm.OnStandby()); // example: hold arm at 40 degrees when D-pad down is pressed
- m_driverController.povRight().whileTrue(m_arm.runAtSpeed()); // example: run arm at 50% speed while D-pad right is held
- //m_driverController.povLeft().whileTrue(m_exampleSubsystem.set(0.9)); // example: run arm at -50% speed while D-pad left is held
- //m_driverController.a().whileTrue(m_exampleSubsystem.setAngle(Degrees.of(45))); // example: set example subsystem to 45 degrees while right trigger is held
+    m_operatorController.a().whileTrue(m_Intake.IntakeOn(RPM.of(3000))); // operator A: run intake at 3000 RPM while held
+    m_operatorController.b().whileTrue(m_Intake.ReverseIntake()); // operator B: run intake in reverse at 30% while held
+    m_operatorController.x().whileTrue(m_arm.Set_To_90_Degrees()); // operator X: set arm to 90 degrees while held
+    m_operatorController.y().whileTrue(m_arm.StowArm()); // operator Y: stow arm at starting position while held
+    m_operatorController.rightBumper().onTrue(new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor));     
+    m_operatorController.rightBumper().onFalse(m_Shooter.Stop()); // Y: stop shooter while held 
+  
     // Map driver controller buttons to shooter commands
    
   }
@@ -150,6 +148,6 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(drivebase);
+    return Autos.exampleAuto(m_Shooter, m_ShooterFeeder, m_conveyor); // return the example auto command (replace with your own command)
   }
 }

@@ -5,7 +5,6 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import edu.wpi.first.units.Units;
 import static edu.wpi.first.units.Units.RPM;
 
 import frc.robot.subsystems.ShooterSubsystem;
@@ -22,8 +21,8 @@ public class RunShooterFeederConveyor extends ParallelCommandGroup {
     // Add the commands to run in parallel. These must be Commands returned by your subsystems.
     addCommands(
       shooter.setVelocity(RPM.of(3000)),       // closed-loop shooter command
-      feeder.runPercent(0.6),                  // <-- replace with real feeder command
-      conv.runConveyorAtPercent(0.6)           // <-- replace with real conveyor command
+      feeder.SpinAt1000RPM(),                  // <-- replace with real feeder command
+      conv.RunConveyor()           // <-- replace with real conveyor command
     );
 
     // Declare that this command requires all three subsystems to avoid resource conflicts.

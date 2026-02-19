@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Volts; // unit helper for volts
 
 import com.ctre.phoenix6.CANBus; // CTRE CAN bus type (unused but often available)
 import com.ctre.phoenix6.hardware.TalonFX; // CTRE TalonFX motor controller class
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import com.revrobotics.spark.SparkMax; // REV SparkMax (import present though not used here)
 
 import edu.wpi.first.math.system.plant.DCMotor; // WPILib DCMotor model used for simulation
@@ -31,6 +32,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig; // YAMS motor controlle
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode; // control mode enum
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode; // motor idle mode enum
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity; // telemetry verbosity enum
+import yams.motorcontrollers.local.SparkWrapper;
 import yams.motorcontrollers.remote.TalonFXWrapper; // wrapper to adapt TalonFX to SmartMotorController
 
 /**
@@ -154,7 +156,7 @@ public class ShooterSubsystem extends SubsystemBase { // subsystem that encapsul
 
 
 
-
+/* 
   private final TalonFX ShooterMotorFollower = new TalonFX(
                                                   15, 
                                                   "rio"
@@ -244,6 +246,8 @@ private final SmartMotorController follower = new TalonFXWrapper(
                                                  // same soft limits
   // .withSpeedometerSimulation(RPM.of(0));
   private final FlyWheel shooterfollow = new FlyWheel(shooterfollowConfig); // create FlyWheel for follower
+ */
+                      
   /**
    * Create a new ShooterSubsystem.
    */
@@ -258,17 +262,19 @@ private final SmartMotorController follower = new TalonFXWrapper(
   public AngularVelocity getVelocity() { // return current mechanism angular velocity
     return shooter.getSpeed();
   }
-
+ 
+ 
+ 
   /**
    * Convenience command: spin both leader and follower to ~3000 RPM while
    * the command runs. This composes the leader command with the follower
    * command so both appear in telemetry and simulation.
    */
   public Command SpinAt3000RPM() {
-    return shooter.setSpeed(RPM.of(3000))
-        .andThen(shooterfollow.setSpeed(RPM.of(3000)));
+    return shooter.setSpeed(RPM.of(3000));
+        //.andThen(shooterfollow.setSpeed(RPM.of(3000)));
   }
-
+  
   /**
    * Close-loop to a fixed angular velocity (one-shot command).
    *
@@ -300,21 +306,7 @@ private final SmartMotorController follower = new TalonFXWrapper(
     return shooter.set(dutyCycle);
   }
 
-  /**
-   * Run a short test to verify follower direction.
-   *
-   * <p>This schedules an open-loop duty on the leader for a fixed duration so
-   * you can observe the physical follower or the simulated follower and confirm
-   * its inversion setting.
-   *
-   * @param duty duty cycle to apply (e.g. 0.2 for 20%)
-   * @param seconds duration in seconds to run the test
-   * @return a {@link Command} that runs the shooter for the given duration
-   */
-  public Command runFollowerTest(double duty, double seconds) { // helper command to run leader briefly for verification
-    return setDutyCycle(duty).withTimeout(seconds); // run leader at duty for duration; observe follower
-  }
-
+  
   /**
    * Create a command that closes the loop to a velocity supplied at runtime.
    *
@@ -326,16 +318,7 @@ private final SmartMotorController follower = new TalonFXWrapper(
     return shooter.setSpeed(speed);
   }
 
-  /**
-   * Create a command that applies an open-loop duty cycle supplied at runtime.
-   *
-   * @param dutyCycle supplier that provides duty in the range [-1.0, 1.0]
-   * @return a {@link Command} that when scheduled will apply the supplied duty
-   *     cycle to the leader
-   */
-  public Command setDutyCycle(Supplier<Double> dutyCycle) { // command to set duty from a supplier
-    return shooter.set(dutyCycle);
-  }
+  
 
   /**
    * Create a simple system-identification command for the shooter mechanism.
@@ -352,12 +335,12 @@ private final SmartMotorController follower = new TalonFXWrapper(
   @Override
   public void periodic() { // regular scheduler-periodic updates
     shooter.updateTelemetry(); // update leader telemetry fields
-    follower.updateTelemetry(); // update follower telemetry fields to keep it visible in dashboards
+    //follower.updateTelemetry(); // update follower telemetry fields to keep it visible in dashboards
   }
 
   @Override
   public void simulationPeriodic() { // simulation-only updates called at sim rate
     shooter.simIterate(); // update leader simulation
-    shooterfollow.simIterate(); // update follower simulation to keep it in sync with leader
+    //shooterfollow.simIterate();
   }
 }

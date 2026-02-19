@@ -3,14 +3,25 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot.commands;
-import frc.robot.subsystems.SwerveSubsystem;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.conveyor;
+import edu.wpi.first.wpilibj2.command.Command;
+
+/** Utility class containing autonomous command factories. */
 public final class Autos {
-  /** Example static factory for an autonomous command. */
-  public static Command exampleAuto(SwerveSubsystem m_exampleSubsystem) {
-    return Commands.sequence(m_exampleSubsystem.exampleMethodCommand(), new ExampleCommand(m_exampleSubsystem));
+  /**
+   * Example static factory for an autonomous command.
+   *
+   * @param shooter the shooter subsystem
+   * @param feeder the feeder subsystem
+   * @param conv the conveyor subsystem
+   * @return an example autonomous command sequence
+   */
+  public static Command exampleAuto(ShooterSubsystem shooter, FeederSubsystem feeder, conveyor conv) {
+    // Return a simple ExampleCommand that requires the shooter, feeder, and conveyor.
+    return new RunShooterFeederConveyor(shooter, feeder, conv);
   }
 
   private Autos() {
