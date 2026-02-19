@@ -70,9 +70,9 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
   
   
 
-  private SparkMax spark = new SparkMax(16, MotorType.kBrushless); // create SparkMax on CAN ID 16
+  private SparkMax spark = new SparkMax(18, MotorType.kBrushless); // create SparkMax on CAN ID 16
   // Create our SmartMotorController from our Spark and config with the NEO.
-  private SmartMotorController sparkSmartMotorController = new SparkWrapper(spark, DCMotor.getNEO(1), IntakeConfig); // wrap
+  private SmartMotorController sparkSmartMotorController = new SparkWrapper(spark, DCMotor.getNeo550(1), IntakeConfig); // wrap
                                                                                                                   // SparkMax
                                                                                                                   // with
                                                                                                                   // YAMS
@@ -110,8 +110,8 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
    * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
    */
  
-public Command IntakeOn() {
-  return intake.setSpeed(RPM.of(400)); // example command to set flywheel to 400 RPM
+public Command IntakeOn(AngularVelocity speed) {
+  return intake.setSpeed(speed); // example command to set flywheel to 400 RPM
 }
   
 public Command IntakeOff() {

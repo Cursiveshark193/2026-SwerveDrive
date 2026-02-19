@@ -43,7 +43,7 @@ public class conveyor extends SubsystemBase {
 
   private SparkMax conveyorSpark = new SparkMax(17, MotorType.kBrushless); // example second SparkMax for conveyor on CAN ID 17
   // Create SmartMotorController for conveyor SparkMax with its config and motor model (NEO550)
-  private SmartMotorController conveyorSmartMotorController = new SparkWrapper(conveyorSpark, DCMotor.getNeo550(1), ConveyorConfig); // wrap second SparkMax with SmartMotorController for conveyor
+  private SmartMotorController conveyorSmartMotorController = new SparkWrapper(conveyorSpark, DCMotor.getNEO(1), ConveyorConfig); // wrap second SparkMax with SmartMotorController for conveyor
 
   private final FlyWheelConfig conveyorConfig = new FlyWheelConfig(conveyorSmartMotorController) // mechanism config for conveyor
       .withDiameter(Inches.of(2)) // example diameter for conveyor roller

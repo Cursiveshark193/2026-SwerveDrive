@@ -53,7 +53,8 @@ public class RobotContainer {
     configureBindings(); // set up button->command mappings
     
     // Set the default command to hold shooter at rest (0 RPM)
-     m_Shooter.setDefaultCommand(m_Shooter.setVelocity(RPM.of(0)));
+     m_Shooter.setDefaultCommand(m_Shooter.Stop()); // default command to stop shooter
+     m_conveyor.setDefaultCommand(m_conveyor.StopConveyor()); // default command to stop conveyor
     m_Intake.setDefaultCommand(m_Intake.IntakeOff()); // intake angle default (disabled)
     // Choose a default drive command depending on whether we're in sim
     m_arm.setDefaultCommand(m_arm.OnStandby()); // default command to hold arm at 0 degrees
@@ -122,27 +123,26 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
    */
   private void configureBindings() { // map controller inputs to commands
     
- m_driverController.a().onTrue(m_Intake.IntakeOn()); // example: run intake when A button is pressed
- m_driverController.start().and(m_driverController.a().onTrue(Commands.parallel(m_Intake.IntakeOff(),m_conveyor.StopConveyor()))); // stop intake when A button is released
+ m_driverController.a().onTrue(m_Intake.IntakeOn(RPM.of(700))); // example: run intake when A button is pressed
+ m_driverController.start().and(m_driverController.a().onTrue(Commands.parallel(m_Intake.ReverseIntake(),m_conveyor.ReverseConveyor()))); // stop intake when A button is released
  m_driverController.b().onTrue(m_Intake.ReverseIntake()); // example: reverse intake when B button is pressed
  m_driverController.b().onFalse(m_Intake.IntakeOff()); // stop intake when B button is released
 
- m_driverController.x().onTrue(m_Shooter.setVelocity(RPM.of(3000))); // example: set shooter to 3000 RPM when X button is pressed
- m_driverController.y().onTrue(m_Shooter.setVelocity(RPM.of(0))); // example: stop shooter when Y button is pressed
+ m_driverController.x().whileTrue(m_Shooter.SpinAt3000RPM()); // example: set shooter to 3000 RPM when X button is pressed
+ m_driverController.y().onTrue(m_Shooter.setVelocity(RPM.of(6000))); // example: stop shooter when Y button is pressed
 
  m_driverController.leftBumper().onTrue(m_arm.Set_To_90_Degrees()); // example: set arm to 90 degrees when left bumper is pressed
  m_driverController.rightBumper().onTrue(m_arm.StowArm()); // example: stow arm at starting position when right bumper is pressed
  m_driverController.povUp().onTrue(m_arm.Agitate()); // example: agitate arm by moving to 10 degrees and back when D-pad up is pressed
- m_driverController.povDown().onTrue(m_arm.OnStandby()); // example: hold arm at 0 degrees when D-pad down is pressed
+ m_driverController.povDown().onTrue(m_arm.OnStandby()); // example: hold arm at 40 degrees when D-pad down is pressed
+ m_driverController.povRight().whileTrue(m_arm.runAtSpeed()); // example: run arm at 50% speed while D-pad right is held
+ //m_driverController.povLeft().whileTrue(m_exampleSubsystem.set(0.9)); // example: run arm at -50% speed while D-pad left is held
+ //m_driverController.a().whileTrue(m_exampleSubsystem.setAngle(Degrees.of(45))); // example: set example subsystem to 45 degrees while right trigger is held
     // Map driver controller buttons to shooter commands
    
   }
 
-  /**
-   * Use this to pass the autonomous command to the main {@link Robot} class.
-   *
-   * @return the command to run in autonomous
-   */
+  
   /**
    * Returns the autonomous command to run during the autonomous period.
    *

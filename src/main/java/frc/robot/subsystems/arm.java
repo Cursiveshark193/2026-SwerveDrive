@@ -18,6 +18,7 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.GearBox;
@@ -46,14 +47,14 @@ public class arm extends SubsystemBase{
       // In this example GearBox.fromReductionStages(3,4) is the same as
       // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to
       // your motor.
-      .withGearing(new MechanismGearing(GearBox.fromReductionStages(5,9)))
+      .withGearing(new MechanismGearing(GearBox.fromReductionStages(9)))
       // Motor properties to prevent over currenting.
       .withMotorInverted(true)
       .withIdleMode(MotorMode.COAST)
       .withStatorCurrentLimit(Amps.of(30))
       .withClosedLoopRampRate(Seconds.of(50))
       .withOpenLoopRampRate(Seconds.of(5));
-  private SparkMax Arm = new SparkMax(18, MotorType.kBrushless); // create second SparkMax on CAN ID 17 (if needed)
+  private SparkMax Arm = new SparkMax(16, MotorType.kBrushless); // create second SparkMax on CAN ID 17 (if needed)
   private SmartMotorController sparkSmartMotorController2 = new SparkWrapper(Arm, DCMotor.getNEO(1), ArmConfig);
   private final ArmConfig armCfg = new ArmConfig(sparkSmartMotorController2) // mechanism config for intake arm
       // Soft limit is applied to the SmartMotorControllers PID
@@ -66,7 +67,7 @@ public class arm extends SubsystemBase{
       .withLength(Feet.of(1.75))
       .withMass(Pounds.of(3.45))
       // Telemetry name and verbosity for the arm.
-      .withTelemetry("Arm", TelemetryVerbosity.HIGH);
+      .withTelemetry("Army", TelemetryVerbosity.HIGH);
   private Arm arm = new Arm(armCfg); // create Arm mechanism instance with arm config
 
  public Command Set_To_90_Degrees() {
@@ -75,7 +76,9 @@ public class arm extends SubsystemBase{
   public Command StowArm () {
     return arm.setAngle(Degrees.of(-4.631007201969624)); // example command to stow arm at starting position (replace with desired angle)
   } 
-
+  public Command runAtSpeed () {
+    return run(() -> arm.setDutyCycleSetpoint(0.3)); // example command to run arm at given speed (replace with desired speed)
+  } 
   public Command Agitate () {
     return arm.setAngle(Degrees.of(10)).withTimeout(Seconds.of(0.5)).andThen(arm.setAngle(Degrees.of(-4.631007201969624)).withTimeout(Seconds.of(0.5))); // example command to agitate arm by moving to 10 degrees and back to starting position (replace with desired angles and timings)
   }
@@ -122,5 +125,3 @@ public class arm extends SubsystemBase{
     arm.simIterate();
   }
 }
-
-
