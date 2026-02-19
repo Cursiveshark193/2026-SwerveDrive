@@ -11,6 +11,12 @@ import frc.robot.Constants;
 import java.io.File;
 import java.util.function.Supplier;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.config.PIDConstants;
+import com.pathplanner.lib.config.RobotConfig;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
+
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import swervelib.parser.SwerveParser;
 import swervelib.telemetry.SwerveDriveTelemetry;
@@ -22,8 +28,16 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import static edu.wpi.first.units.Units.Meter;
 
+/**
+ * SwerveSubsystem constructs and exposes the robot's SwerveDrive instance.
+ *
+ * <p>The subsystem uses a SwerveParser to read the swerve module configuration
+ * from the deploy directory and creates a {@link swervelib.SwerveDrive} which
+ * is used by higher-level commands to drive the robot. Telemetry verbosity is
+ * configured prior to creating the drive to reduce unnecessary allocations.
+ */
 public class SwerveSubsystem extends SubsystemBase {
-  /** Creates a new ExampleSubsystem. */
+  /** Create a new SwerveSubsystem and parse the deployed swerve configuration. */
   File directory = new File(Filesystem.getDeployDirectory(),"swerve");
   SwerveDrive  swerveDrive;
   public SwerveSubsystem() {
@@ -47,6 +61,7 @@ public class SwerveSubsystem extends SubsystemBase {
       throw new RuntimeException(e);
     }
   }
+    setupPathPlanner();
   }
 
   /**
@@ -106,7 +121,80 @@ public class SwerveSubsystem extends SubsystemBase {
     // This method will be called once per scheduler run during simulation
   }
 
+  /**
+   * Access the underlying {@link SwerveDrive} instance created by this
+   * subsystem.
+   *
+   * @return the configured SwerveDrive
+   */
   public SwerveDrive getSwerveDrive(){
     return swerveDrive;
+  }
+
+  /**
+   * Setup AutoBuilder for PathPlanner.
+   */
+  public void setupPathPlanner()
+  {
+    // Load the RobotConfig from the GUI settings. You should probably
+    // store this in your Constants file
+    RobotConfig config;
+    try
+    {
+      config = RobotConfig.fromGUISettings();
+
+      final boolean enableFeedforward = true;
+      // Configure AutoBuilder last
+      AutoBuilder.configure(
+          swerveDrive::getPose,
+          // Robot pose supplier
+          swerveDrive::resetOdometry,
+          // Method to reset odometry (will be called if your auto has a starting pose)
+          swerveDrive::getRobotVelocity,
+          // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+          (speedsRobotRelative, moduleFeedForwards) -> {
+            if (enableFeedforward)
+            {
+              swerveDrive.drive(
+                  speedsRobotRelative,
+                  swerveDrive.kinematics.toSwerveModuleStates(speedsRobotRelative),
+                  moduleFeedForwards.linearForces()
+                               );
+            } else
+            {
+              swerveDrive.setChassisSpeeds(speedsRobotRelative);
+            }
+          },
+          // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+          new PPHolonomicDriveController(
+              // PPHolonomicController is the built in path following controller for holonomic drive trains
+              new PIDConstants(5.0, 0.0, 0.0),
+              // Translation PID constants
+              new PIDConstants(5.0, 0.0, 0.0)
+              // Rotation PID constants
+          ),
+          config,
+          // The robot configuration
+          () -> {
+            // Boolean supplier that controls when the path will be mirrored for the red alliance
+            // This will flip the path being followed to the red side of the field.
+            // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+
+            var alliance = DriverStation.getAlliance();
+            if (alliance.isPresent())
+            {
+              return alliance.get() == DriverStation.Alliance.Red;
+            }
+            return false;
+          },
+          this
+          // Reference to this subsystem to set requirements
+                           );
+
+    } catch (Exception e)
+    {
+      // Handle exception as needed
+      e.printStackTrace();
+    }
   }
 }
