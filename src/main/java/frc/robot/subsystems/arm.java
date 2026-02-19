@@ -5,20 +5,13 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Second;
 import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
-
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.AngularVelocity;
-import edu.wpi.first.wpilibj.DutyCycle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.GearBox;
@@ -71,19 +64,37 @@ public class arm extends SubsystemBase{
   private Arm arm = new Arm(armCfg); // create Arm mechanism instance with arm config
 
  public Command Set_To_90_Degrees() {
-    return arm.setAngle(Degrees.of(90)); // example command to set arm to 90 degrees (replace with desired angle)
+    return arm.setAngle(
+      Degrees.of(90)); // example command to set arm to 90 degrees (replace with desired angle)
   }
   public Command StowArm () {
-    return arm.setAngle(Degrees.of(-4.631007201969624)); // example command to stow arm at starting position (replace with desired angle)
+    return arm.setAngle(
+      Degrees.of(-4.631007201969624)); // example command to stow arm at starting position (replace with desired angle)
   } 
   public Command runAtSpeed () {
-    return run(() -> arm.setDutyCycleSetpoint(0.3)); // example command to run arm at given speed (replace with desired speed)
+    return arm.set(
+      0.3); // example command to run arm at given speed (replace with desired speed)
   } 
   public Command Agitate () {
-    return arm.setAngle(Degrees.of(10)).withTimeout(Seconds.of(0.5)).andThen(arm.setAngle(Degrees.of(-4.631007201969624)).withTimeout(Seconds.of(0.5))); // example command to agitate arm by moving to 10 degrees and back to starting position (replace with desired angles and timings)
+    return arm.setAngle(
+      Degrees.of
+      (10))
+      .withTimeout(
+        Seconds.of
+        (0.5))
+      .andThen(
+        arm.setAngle(
+          Degrees.of
+          (-4.631007201969624))
+          .withTimeout(
+            Seconds.of
+            (0.5))); 
+            // example command to agitate arm by moving to 10 degrees and back to starting position (replace with desired angles and timings)
   }
   public Command OnStandby () {
-    return arm.setAngle(Degrees.of(0)); // example command to hold arm at 0 degrees (replace with desired angle)
+    return arm.setAngle(
+      Degrees.of
+      (0)); // example command to hold arm at 0 degrees (replace with desired angle)
   }
  /** Create a new Intake subsystem. */
   public arm() {
