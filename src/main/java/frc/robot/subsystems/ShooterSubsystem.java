@@ -155,7 +155,9 @@ public class ShooterSubsystem extends SubsystemBase { // subsystem that encapsul
 
 
 
-
+// follower motor and mechanism are optional, but included to show how to set up a follower with its own telemetry and simulation model. 
+//If you do not need/want a separate follower model, you can simply register the follower TalonFX in the leader SmartMotorControllerConfig (see above)
+// and omit all follower-specific code below. (Done Already)
 /* 
   private final TalonFX ShooterMotorFollower = new TalonFX(
                                                   15, 
