@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.Volts; // unit helper for volts
 
 import com.ctre.phoenix6.CANBus; // CTRE CAN bus type (unused but often available)
 import com.ctre.phoenix6.hardware.TalonFX; // CTRE TalonFX motor controller class
+import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
 import com.revrobotics.spark.SparkMax; // REV SparkMax (import present though not used here)
 
 import edu.wpi.first.math.system.plant.DCMotor; // WPILib DCMotor model used for simulation
@@ -31,6 +32,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig; // YAMS motor controlle
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode; // control mode enum
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode; // motor idle mode enum
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity; // telemetry verbosity enum
+import yams.motorcontrollers.local.SparkWrapper;
 import yams.motorcontrollers.remote.TalonFXWrapper; // wrapper to adapt TalonFX to SmartMotorController
 
 /**
@@ -44,70 +46,211 @@ import yams.motorcontrollers.remote.TalonFXWrapper; // wrapper to adapt TalonFX 
  */
 public class ShooterSubsystem extends SubsystemBase { // subsystem that encapsulates shooter hardware and simulation
 
-  private final TalonFX ShooterMotorLeader = new TalonFX(14, "rio"); // instantiate leader TalonFX on CAN ID 14 on 'rio'
-                                                                     // bus
-  private final TalonFX ShooterMotorFollower = new TalonFX(15, "rio"); // instantiate follower TalonFX on CAN ID 15 on
-                                                                       // 'rio' bus
+  private final TalonFX ShooterMotorLeader = new TalonFX
+                                              (
+                                              14, 
+                                              "rio"
+                                              ); 
+                                              // instantiate leader TalonFX on 
+                                             //CAN ID 14 on "rio" bus
 
-  // optional telemetry config (commented out): controls which additional
+   // optional telemetry config (commented out): controls which additional
   // telemetry fields are published for a SmartMotorController.
-  private final SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this) // configuration object
-                                                                                              // for the leader wrapper
-      .withFollowers(Pair.of(new TalonFX(15, "rio"), true)) // register a hardware follower (TalonFX ID 15) and mark it
-                                                            // inverted
-      .withClosedLoopController(0.00016541, 0, 0, RPM.of(5000), RotationsPerSecondPerSecond.of(2500)) // set PID
-                                                                                                      // constants and
-                                                                                                      // closed-loop
-                                                                                                      // safety limits
-      .withSimClosedLoopController(0, 0, 0, RPM.of(5000), RotationsPerSecondPerSecond.of(2500)) // set simulated
-                                                                                                // closed-loop defaults
-      .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4))) // configure gearing between motor and
-                                                                            // mechanism
-      .withIdleMode(MotorMode.COAST) // set idle mode to coast
-      .withTelemetry("ShooterMotor", TelemetryVerbosity.HIGH) // telemetry name and verbosity level
-      .withStatorCurrentLimit(Amps.of(40)) // limit stator current to protect hardware
-      .withMotorInverted(false) // do not invert leader motor output
-      .withClosedLoopRampRate(Seconds.of(25)) // apply closed-loop ramping
-      .withOpenLoopRampRate(Seconds.of(25)) // apply open-loop ramping
-      .withFeedforward(new SimpleMotorFeedforward(0.27937, 0.089836, 0.014557)) // feedforward gains used in control
-      .withSimFeedforward(new SimpleMotorFeedforward(0.27937, 0.089836, 0.014557)) // same feedforward for simulation
-      .withControlMode(ControlMode.CLOSED_LOOP); // use closed-loop control mode by default
-  private final SmartMotorController motor = new TalonFXWrapper(ShooterMotorLeader, DCMotor.getKrakenX60(1),
-      motorConfig); // leader wrapper adapts TalonFX to SmartMotorController
+  private final SmartMotorControllerConfig motorConfig = new SmartMotorControllerConfig(this)// configuration object
+                                                                                            // for the leader wrapper
+                                                                                        .withFollowers(Pair.of(
+                                                                                          new TalonFX(
+                                                                                            15, 
+                                                                                            "rio"), 
+                                                                                            true)) 
+                                                                                            // register a hardware follower 
+                                                                                           //(TalonFX ID 15) 
+                                                                                          //and mark it inverted
+                                                                                        .withClosedLoopController(
+                                                                                          0.00016541, 
+                                                                                          0, 
+                                                                                          0, 
+                                                                                          RPM
+                                                                                          .of(5000),
+                                                                                          RotationsPerSecondPerSecond
+                                                                                          .of(2500)) 
+                                                                                          // set PID
+                                                                                         // constants and
+                                                                                        // closed-loop
+                                                                                       // safety limits
+                                                                                          .withSimClosedLoopController(
+                                                                                            0,
+                                                                                            0, 
+                                                                                            0, 
+                                                                                            RPM
+                                                                                            .of(5000), 
+                                                                                            RotationsPerSecondPerSecond
+                                                                                            .of(2500)) 
+                                                                                            // set simulated
+                                                                                           // closed-loop defaults
+                                                                                          .withGearing(
+                                                                                            new MechanismGearing(
+                                                                                              GearBox.
+                                                                                              fromReductionStages
+                                                                                              (3, 4))) 
+                                                                                          // configure gearing between motor and
+                                                                                         // mechanism
+                                                                                         .withIdleMode(
+                                                                                          MotorMode.COAST) 
+                                                                                         // set idle mode to coast
+                                                                                         .withTelemetry(
+                                                                                          "ShooterMotor", 
+                                                                                          TelemetryVerbosity.HIGH) 
+                                                                                          // telemetry name and verbosity level
+                                                                                         .withStatorCurrentLimit(
+                                                                                          Amps.of
+                                                                                          (40)) 
+                                                                                         // limit stator current to protect hardware
+                                                                                         .withMotorInverted(
+                                                                                          false) 
+                                                                                          // do not invert leader motor output
+                                                                                         .withClosedLoopRampRate(
+                                                                                          Seconds.of
+                                                                                          (25)) 
+                                                                                          // apply closed-loop ramping
+                                                                                         .withOpenLoopRampRate(
+                                                                                          Seconds.of
+                                                                                          (25)) 
+                                                                                          // apply open-loop ramping
+                                                                                         .withFeedforward(
+                                                                                          new SimpleMotorFeedforward
+                                                                                          (0.27937, 
+                                                                                           0.089836,
+                                                                                           0.014557)) 
+                                                                                           // feedforward gains used in control
+                                                                                         .withSimFeedforward(
+                                                                                          new SimpleMotorFeedforward
+                                                                                          (0.27937, 
+                                                                                           0.089836, 
+                                                                                           0.014557)) 
+                                                                                          // same feedforward for simulation
+                                                                                         .withControlMode(
+                                                                                          ControlMode.CLOSED_LOOP); // use closed-loop control mode by default
+  private final SmartMotorController motor = new TalonFXWrapper(ShooterMotorLeader, 
+                                                                DCMotor
+                                                                .getKrakenX60(1),
+                                                                motorConfig); 
+  // leader wrapper adapts TalonFX to SmartMotorController
+
+ 
+
+  private final FlyWheelConfig shooterConfig = new FlyWheelConfig(motor) // mechanism model configuration for leader
+                                                                 .withDiameter(Inches.of(6)) // flywheel diameter
+                                                                 .withMass(Pounds.of(10)) // flywheel mass
+                                                                 .withTelemetry(
+                                                                  "ShooterMech", 
+                                                                  TelemetryVerbosity.HIGH) // mechanism telemetry name
+                                                                 .withSoftLimit(RPM.of(
+                                                                  -50000), 
+                                                                  RPM.of(
+                                                         50000)); // soft limits for speed
+  // .withSpeedometerSimulation(RPM.of(0)); // optional: initial simulated speed
+  private final FlyWheel shooter = new FlyWheel(shooterConfig);
+                         // create FlyWheel mechanism for leader 
+
+
+
+
+/* 
+  private final TalonFX ShooterMotorFollower = new TalonFX(
+                                                  15, 
+                                                  "rio"
+                                                  ); 
+                                                  // instantiate follower TalonFX on 
+                                                 //CAN ID 15 on 'rio' bus
+                                                                       
 
   // followerConfig: create a separate wrapper so follower shows in telemetry/sim
   private final SmartMotorControllerConfig followerConfig = new SmartMotorControllerConfig(this)
-      .withIdleMode(MotorMode.COAST) // follower idle mode
-      .withTelemetry("ShooterFollower", TelemetryVerbosity.HIGH) // follower telemetry name
-      .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4))) // mirror gearing
-      .withClosedLoopController(0.00016541, 0, 0, RPM.of(5000), RotationsPerSecondPerSecond.of(2500)) // mirror PID
-      .withSimClosedLoopController(0, 0, 0, RPM.of(5000), RotationsPerSecondPerSecond.of(2500)) // mirror sim PID
-      .withStatorCurrentLimit(Amps.of(40)) // mirror current limit
-      .withMotorInverted(true) // match physical follower inversion flag
-      .withClosedLoopRampRate(Seconds.of(25)) // mirror ramp rates
-      .withOpenLoopRampRate(Seconds.of(25))
-      .withControlMode(ControlMode.CLOSED_LOOP); // same control mode
-  private final SmartMotorController follower = new TalonFXWrapper(ShooterMotorFollower, DCMotor.getKrakenX60(1),
-      followerConfig); // follower wrapper
-
-  private final FlyWheelConfig shooterConfig = new FlyWheelConfig(motor) // mechanism model configuration for leader
-      .withDiameter(Inches.of(6)) // flywheel diameter
-      .withMass(Pounds.of(10)) // flywheel mass
-      .withTelemetry("ShooterMech", TelemetryVerbosity.HIGH) // mechanism telemetry name
-      .withSoftLimit(RPM.of(-50000), RPM.of(50000)); // soft limits for speed
-  // .withSpeedometerSimulation(RPM.of(0)); // optional: initial simulated speed
-  private final FlyWheel shooter = new FlyWheel(shooterConfig); // create FlyWheel mechanism for leader
-
-  private final FlyWheelConfig shooterfollowConfig = new FlyWheelConfig(follower) // mechanism model for follower
-                                                                                  // wrapper
-      .withDiameter(Inches.of(6)) // match diameter
-      .withMass(Pounds.of(10)) // match mass
-      .withTelemetry("Shooter", TelemetryVerbosity.HIGH) // telemetry name for follower mechanism
-      .withSoftLimit(RPM.of(-50000), RPM.of(50000)); // same soft limits
+                                                                .withIdleMode(
+                                                                  MotorMode.COAST) 
+                                                                  // follower idle mode
+                                                                .withTelemetry(
+                                                                "ShooterFollower", 
+                                                                TelemetryVerbosity.HIGH) 
+                                                                // follower telemetry name
+                                                                .withGearing(new MechanismGearing
+                                                                (GearBox
+                                                                .fromReductionStages
+                                                                (3, 4))) 
+                                                                // mirror gearing
+                                                                .withClosedLoopController(
+                                                                  0.00016541, 
+                                                                  0, 
+                                                                  0, 
+                                                                  RPM.of
+                                                                  (5000), 
+                                                                  RotationsPerSecondPerSecond.of
+                                                                  (2500)) 
+                                                                  // mirror PID
+                                                                .withSimClosedLoopController(
+                                                                  0, 
+                                                                  0, 
+                                                                  0, 
+                                                                  RPM.of
+                                                                  (5000), 
+                                                                  RotationsPerSecondPerSecond.of
+                                                                  (2500)) 
+                                                                  // mirror sim PID
+                                                                .withStatorCurrentLimit(
+                                                                  Amps.of
+                                                                  (40)) 
+                                                                  // mirror current limit
+                                                                .withMotorInverted(
+                                                                  true) 
+                                                                  // match physical follower inversion flag
+                                                                .withClosedLoopRampRate(
+                                                                  Seconds.of
+                                                                  (25)) 
+                                                                  // mirror ramp rates
+                                                                .withOpenLoopRampRate(
+                                                                  Seconds.of
+                                                                  (25))
+                                                                .withControlMode(
+                                                                  ControlMode.
+                                                                  CLOSED_LOOP
+                                                                  ); 
+                                                                  // same control mode
+  
+private final SmartMotorController follower = new TalonFXWrapper(
+                                                   ShooterMotorFollower, 
+                                                   DCMotor.
+                                                    getKrakenX60(1),
+                                                   followerConfig); 
+                                                   // follower wrapper
+  private final FlyWheelConfig shooterfollowConfig = new FlyWheelConfig(follower) 
+                                                         // mechanism model for
+                                                        // follower wrapper
+                                                         .withDiameter(
+                                                          Inches.of
+                                                          (6)) 
+                                                          // match diameter
+                                                         .withMass(
+                                                          Pounds.of
+                                                          (10)) 
+                                                         // match mass
+                                                         .withTelemetry(
+                                                          "Shooter", 
+                                                          TelemetryVerbosity.HIGH) 
+                                                          // telemetry name for follower mechanism
+                                                         .withSoftLimit(
+                                                          RPM.of
+                                                          (-50000), 
+                                                          RPM.of
+                                                 (50000)); 
+                                                 // same soft limits
   // .withSpeedometerSimulation(RPM.of(0));
   private final FlyWheel shooterfollow = new FlyWheel(shooterfollowConfig); // create FlyWheel for follower
-
-  /** Create a new ShooterSubsystem. */
+ */
+                      
+  /**
+   * Create a new ShooterSubsystem.
+   */
   public ShooterSubsystem() { // default constructor; no extra initialization needed
   }
 
@@ -119,27 +262,41 @@ public class ShooterSubsystem extends SubsystemBase { // subsystem that encapsul
   public AngularVelocity getVelocity() { // return current mechanism angular velocity
     return shooter.getSpeed();
   }
-
+ 
+ 
+ 
   /**
-   * Get the current shooter follower wheel angular velocity.
-   *
-   * @return current angular velocity of the follower shooter mechanism
+   * Convenience command: spin both leader and follower to ~3000 RPM while
+   * the command runs. This composes the leader command with the follower
+   * command so both appear in telemetry and simulation.
    */
-  public Command SpinAt3000RPM() { // return current follower mechanism angular velocity
-    return shooter.setSpeed(RPM.of(3000)).andThen(shooterfollow.setSpeed(RPM.of(3000)));
-    
+  public Command SpinAt3000RPM() {
+    return shooter.setSpeed(RPM.of(3000));
+        //.andThen(shooterfollow.setSpeed(RPM.of(3000)));
+  }
+  
+  /**
+   * Close-loop to a fixed angular velocity (one-shot command).
+   *
+   * @param velocity the target angular velocity
+   * @return a command that drives the leader to the requested velocity
+   */
+  public Command setVelocity(AngularVelocity velocity) {
+    return shooter.setSpeed(velocity);
   }
 
-  public Command setVelocity(AngularVelocity velocity) { // return current follower mechanism angular velocity
-    return shooter.setSpeed(velocity);
-    
-  } 
- public Command Stop() { // return current follower mechanism angular velocity
-    return shooter.setSpeed(RPM.of(0));
-    
-  }
   /**
-   * Create a command to set an open-loop duty cycle on the leader shooter motor.
+   * Stop the shooter (set velocity to zero).
+   *
+   * @return a command that stops the shooter
+   */
+  public Command Stop() {
+    return shooter.setSpeed(RPM.of(0));
+  }
+
+  /**
+   * Create a command to set an open-loop duty cycle on the leader shooter
+   * motor.
    *
    * @param dutyCycle duty cycle in the range [-1.0, 1.0]
    * @return a {@link Command} that when scheduled will apply the requested
@@ -149,29 +306,7 @@ public class ShooterSubsystem extends SubsystemBase { // subsystem that encapsul
     return shooter.set(dutyCycle);
   }
 
-  /**
-   * Run a short test to verify follower direction.
-   *
-   * @param duty    Duty cycle to apply (e.g. 0.2 for 20%).
-   * @param seconds Duration in seconds to run the test.
-   * @return Command that runs the shooter for the given duration.
-   */
-  /**
-   * Run a short test to verify follower direction.
-   *
-   * <p>This schedules an open-loop duty on the leader for a fixed duration so
-   * you can observe the physical follower or the simulated follower and confirm
-   * its inversion setting.
-   *
-   * @param duty duty cycle to apply (e.g. 0.2 for 20%)
-   * @param seconds duration in seconds to run the test
-   * @return a {@link Command} that runs the shooter for the given duration
-   */
-  public Command runFollowerTest(double duty, double seconds) { // helper command to run leader briefly for verification
-    return setDutyCycle(duty).withTimeout(seconds); // run leader at duty for duration; observe follower
-                                                    // direction/inversion
-  }
-
+  
   /**
    * Create a command that closes the loop to a velocity supplied at runtime.
    *
@@ -183,16 +318,7 @@ public class ShooterSubsystem extends SubsystemBase { // subsystem that encapsul
     return shooter.setSpeed(speed);
   }
 
-  /**
-   * Create a command that applies an open-loop duty cycle supplied at runtime.
-   *
-   * @param dutyCycle supplier that provides duty in the range [-1.0, 1.0]
-   * @return a {@link Command} that when scheduled will apply the supplied duty
-   *     cycle to the leader
-   */
-  public Command setDutyCycle(Supplier<Double> dutyCycle) { // command to set duty from a supplier
-    return shooter.set(dutyCycle);
-  }
+  
 
   /**
    * Create a simple system-identification command for the shooter mechanism.
@@ -209,12 +335,12 @@ public class ShooterSubsystem extends SubsystemBase { // subsystem that encapsul
   @Override
   public void periodic() { // regular scheduler-periodic updates
     shooter.updateTelemetry(); // update leader telemetry fields
-    follower.updateTelemetry(); // update follower telemetry fields to keep it visible in dashboards
+    //follower.updateTelemetry(); // update follower telemetry fields to keep it visible in dashboards
   }
 
   @Override
   public void simulationPeriodic() { // simulation-only updates called at sim rate
     shooter.simIterate(); // update leader simulation
-    shooterfollow.simIterate(); // update follower simulation to keep it in sync with leader
+    //shooterfollow.simIterate();
   }
 }
