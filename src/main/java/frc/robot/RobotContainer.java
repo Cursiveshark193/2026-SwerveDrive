@@ -7,12 +7,14 @@ package frc.robot; // root package for robot code
 import frc.robot.Constants.OperatorConstants; // operator constants (joystick ports, deadbands)
 import frc.robot.commands.Autos; // autonomous command factories
 import frc.robot.commands.RunShooterFeederConveyor;
+import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ShooterSubsystem; // shooter subsystem
 import frc.robot.subsystems.SwerveSubsystem; // swerve drive subsystem
 import frc.robot.subsystems.arm;
 import frc.robot.subsystems.conveyor;
 import frc.robot.subsystems.intake;
 import yams.mechanisms.positional.Arm;
+import yams.mechanisms.positional.Elevator;
 //import frc.robot.subsystems.FeederSubsystem; // example second mechanism subsystem for shooter feeder
 import swervelib.SwerveInputStream; // helper to build swerve input streams
 
@@ -46,6 +48,7 @@ public class RobotContainer {
   private final conveyor m_conveyor = new conveyor(); // example second mechanism for conveyor (can also be in its own subsystem if desired)
   private final intake m_Intake = new intake(); // intake (disabled)
   private final arm m_arm = new arm();  
+  private final Climber m_Climber = new Climber();
 //  private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
   private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
  //m_ShooterFeeder,
@@ -144,6 +147,7 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
     m_operatorController.rightBumper().onTrue(new RunShooterFeederConveyor(m_Shooter, m_conveyor));     //, m_ShooterFeeder,
     m_operatorController.rightBumper().onFalse(m_Shooter.Stop()); // Y: stop shooter while held 
     m_operatorController.leftBumper().onTrue(m_conveyor.ReverseConveyor());
+    m_operatorController.leftTrigger().whileTrue(m_Climber.set(0.5)); // left trigger: run climber at 50% while held
   
     // Map driver controller buttons to shooter commands
    
@@ -165,6 +169,5 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
 
   
 
-  public void teleopInit() {
-  }
+ 
 }
