@@ -20,13 +20,11 @@ import swervelib.SwerveInputStream; // helper to build swerve input streams
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM; // RPM unit helper
-import static edu.wpi.first.units.Units.Radians;
-
-import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Rotation2d; // 2D rotation helper
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotBase; // robot base utility (simulation check)
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command; // WPILib command interface
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -48,10 +46,16 @@ public class RobotContainer {
   private final conveyor m_conveyor = new conveyor(); // example second mechanism for conveyor (can also be in its own subsystem if desired)
   private final intake m_Intake = new intake(); // intake (disabled)
   private final arm m_arm = new arm();  
+<<<<<<< HEAD
   private final Climber m_Climber = new Climber();
 //  private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
   private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
  //m_ShooterFeeder,
+=======
+  private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
+  private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
+
+>>>>>>> bce248d2f5d9c4037211120c1f8029bfa4f40872
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
     new CommandXboxController(OperatorConstants.kDriverControllerPort); // driver controller on configured port
@@ -64,7 +68,17 @@ public class RobotContainer {
    */
   public RobotContainer() {
     // Configure the trigger bindings
+    DriverStation.silenceJoystickConnectionWarning(true);
     configureBindings(); // set up button->command mappings
+      autoChooser = AutoBuilder.buildAutoChooser();
+          SmartDashboard.putData("Auto Chooser", autoChooser);
+ //Set the default auto (do nothing) 
+    autoChooser.setDefaultOption("Do Nothing", Commands.none());
+
+    //Add a simple auto option to have the robot drive forward for 1 second then stop
+    autoChooser.addOption("Drive Forward", drivebase.getAutonomousCommand("New Auto"));
+
+    NamedCommands.registerCommand("test", Commands.print("Hello World"));
     
     // Set the default command to hold shooter at rest (0 RPM)
      m_Shooter.setDefaultCommand(m_Shooter.Stop()); // default command to stop shooter
@@ -161,6 +175,7 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
+<<<<<<< HEAD
     return Autos.exampleAuto(m_Shooter, 
     //m_ShooterFeeder, 
     m_conveyor); // return the example auto command (replace with your own command)
@@ -170,4 +185,8 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
   
 
  
+=======
+    return Autos.exampleAuto(m_Shooter, m_ShooterFeeder, m_conveyor); // return the example auto command (replace with your own command)
+  }
+>>>>>>> bce248d2f5d9c4037211120c1f8029bfa4f40872
 }
