@@ -17,11 +17,13 @@ public final class Autos {
    * @param shooter the shooter subsystem
    * @param feeder the feeder subsystem
    * @param conv the conveyor subsystem
+   * @param drivbase 
    * @return an example autonomous command sequence
    */
   public static Command exampleAuto(ShooterSubsystem shooter, FeederSubsystem feeder, conveyor conv) {
     // Return a simple ExampleCommand that requires the shooter, feeder, and conveyor.
     return new RunShooterFeederConveyor(shooter, feeder, conv);
+    
   }
 
   private Autos() {

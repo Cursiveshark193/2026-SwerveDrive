@@ -18,8 +18,14 @@ import swervelib.SwerveInputStream; // helper to build swerve input streams
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.RPM; // RPM unit helper
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.math.geometry.Rotation2d; // 2D rotation helper
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase; // robot base utility (simulation check)
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command; // WPILib command interface
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -41,6 +47,8 @@ public class RobotContainer {
   private final conveyor m_conveyor = new conveyor(); // example second mechanism for conveyor (can also be in its own subsystem if desired)
   private final intake m_Intake = new intake(); // intake (disabled)
   private final arm m_arm = new arm();  
+    private final SendableChooser<Command> autoChooser;
+
   private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
   private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
 
@@ -56,7 +64,17 @@ public class RobotContainer {
    */
   public RobotContainer() {
     // Configure the trigger bindings
+    DriverStation.silenceJoystickConnectionWarning(true);
     configureBindings(); // set up button->command mappings
+      autoChooser = AutoBuilder.buildAutoChooser();
+          SmartDashboard.putData("Auto Chooser", autoChooser);
+ //Set the default auto (do nothing) 
+    autoChooser.setDefaultOption("Do Nothing", Commands.none());
+
+    //Add a simple auto option to have the robot drive forward for 1 second then stop
+    autoChooser.addOption("Drive Forward", drivebase.getAutonomousCommand("New Auto"));
+
+    NamedCommands.registerCommand("test", Commands.print("Hello World"));
     
     // Set the default command to hold shooter at rest (0 RPM)
      m_Shooter.setDefaultCommand(m_Shooter.Stop()); // default command to stop shooter
@@ -148,6 +166,7 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_Shooter, m_ShooterFeeder, m_conveyor); // return the example auto command (replace with your own command)
+    //return Autos.exampleAuto(m_Shooter, m_ShooterFeeder, m_conveyor); // return the example auto command (replace with your own command)
+    return drivebase.getAutonomousCommand("New Auto");
   }
 }
