@@ -41,7 +41,7 @@ public class conveyor extends SubsystemBase {
       .withIdleMode(MotorMode.COAST) // idle/coast behavior
       .withStatorCurrentLimit(Amps.of(40)); // stator current limit to protect hardware
 
-  private SparkMax conveyorSpark = new SparkMax(17, MotorType.kBrushless); // example second SparkMax for conveyor on CAN ID 17
+  private SparkMax conveyorSpark = new SparkMax(16, MotorType.kBrushless); // example second SparkMax for conveyor on CAN ID 17
   // Create SmartMotorController for conveyor SparkMax with its config and motor model (NEO550)
   private SmartMotorController conveyorSmartMotorController = new SparkWrapper(conveyorSpark, DCMotor.getNEO(1), ConveyorConfig); // wrap second SparkMax with SmartMotorController for conveyor
 
