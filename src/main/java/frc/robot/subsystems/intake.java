@@ -85,7 +85,7 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
       // Mass of the flywheel.
       .withMass(Pounds.of(12)) // set flywheel mass
       // Maximum speed of the shooter.
-      .withUpperSoftLimit(RPM.of(200)) // set upper soft speed limit
+      .withUpperSoftLimit(RPM.of(2000)) // set upper soft speed limit
       // Telemetry name and verbosity for the arm.
       .withTelemetry("intakeMech", TelemetryVerbosity.HIGH); // telemetry label for mechanism
 
@@ -119,7 +119,7 @@ public Command IntakeOff() {
 }
 
 public Command ReverseIntake() {
-  return intake.set(-0.3); // example command to run intake in reverse at 30% and conveyor at 50% (replace with desired speeds)
+  return intake.set(-1); // example command to run intake in reverse at 30% and conveyor at 50% (replace with desired speeds)
 }
 
   /** Create a new Intake subsystem. */
