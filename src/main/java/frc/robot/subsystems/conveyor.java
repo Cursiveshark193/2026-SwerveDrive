@@ -60,7 +60,7 @@ public FlyWheel conveyor = new FlyWheel(conveyorConfig); // example second mecha
    return conveyor.setSpeed(RPM.of(0)); // command to stop conveyor
  }
  public Command ReverseConveyor() {
-   return conveyor.set(-0.3); // example command to run conveyor in reverse at 30% (replace with desired speed)
+   return conveyor.set(-0.4); // example command to run conveyor in reverse at 30% (replace with desired speed)
  }
  
 public conveyor() {

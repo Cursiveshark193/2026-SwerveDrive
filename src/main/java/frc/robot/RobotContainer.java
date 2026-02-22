@@ -72,7 +72,7 @@ public class RobotContainer {
      m_conveyor.setDefaultCommand(m_conveyor.StopConveyor()); // default command to stop conveyor
     m_Intake.setDefaultCommand(m_Intake.IntakeOff()); // intake angle default (disabled)
     // Choose a default drive command depending on whether we're in sim
-    //m_ShooterFeeder.setDefaultCommand(m_ShooterFeeder.Stop());
+    m_ShooterFeeder.setDefaultCommand(m_ShooterFeeder.StopFeeder());
     drivebase.setDefaultCommand(!RobotBase.isSimulation() ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngleKeyboard);
   }
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(), // build input stream from controller axes
