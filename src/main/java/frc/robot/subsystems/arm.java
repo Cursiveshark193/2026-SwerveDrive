@@ -65,9 +65,9 @@ public class arm extends SubsystemBase {
 
   private ArmConfig armCfg = new ArmConfig(sparkSmartMotorController)
   // Soft limit is applied to the SmartMotorControllers PID
-  .withSoftLimits(Degrees.of(-20), Degrees.of(10))
+  .withSoftLimits(Degrees.of(-1), Degrees.of(90))
   // Hard limit is applied to the simulation.
-  .withHardLimit(Degrees.of(-30), Degrees.of(40))
+  .withHardLimit(Degrees.of(-0), Degrees.of(90))
   // Starting position is where your arm starts
   .withStartingPosition(Degrees.of(-5))
   // Length and mass of your arm for sim.
@@ -141,6 +141,7 @@ public class arm extends SubsystemBase {
   public void periodic() {
     // This method will be called once per scheduler run
     arm.updateTelemetry();
+    
   }
 
   @Override

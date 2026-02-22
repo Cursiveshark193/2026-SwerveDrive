@@ -39,7 +39,7 @@ import yams.motorcontrollers.local.SparkWrapper;
 public class Climber extends SubsystemBase {
 
   private SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
-    .withControlMode(ControlMode.CLOSED_LOOP)
+    .withControlMode(ControlMode.OPEN_LOOP)
     // Mechanism Circumference is the distance traveled by each mechanism rotation converting rotations to meters.
     .withMechanismCircumference(Meters.of(Inches.of(0.25).in(Meters) * 22))
     // Feedback Constants (PID Constants)
@@ -53,7 +53,7 @@ public class Climber extends SubsystemBase {
     // Gearing from the motor rotor to final shaft.
     // In this example GearBox.fromReductionStages(3,4) is the same as GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your motor.
     // You could also use .withGearing(12) which does the same thing.
-    .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
+    .withGearing(new MechanismGearing(GearBox.fromReductionStages(174.9)))
     // Motor properties to prevent over currenting.
     .withMotorInverted(false)
     .withIdleMode(MotorMode.BRAKE)

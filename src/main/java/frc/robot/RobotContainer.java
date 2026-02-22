@@ -19,12 +19,15 @@ import yams.mechanisms.positional.Elevator;
 import swervelib.SwerveInputStream; // helper to build swerve input streams
 
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RPM; // RPM unit helper
+import static edu.wpi.first.units.Units.Radians;
+
+import java.util.function.Supplier;
 
 import edu.wpi.first.math.geometry.Rotation2d; // 2D rotation helper
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.RobotBase; // robot base utility (simulation check)
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command; // WPILib command interface
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
@@ -46,14 +49,10 @@ public class RobotContainer {
   private final conveyor m_conveyor = new conveyor(); // example second mechanism for conveyor (can also be in its own subsystem if desired)
   private final intake m_Intake = new intake(); // intake (disabled)
   private final arm m_arm = new arm();  
-  private final Climber m_Climber = new Climber();
+  //private final Climber m_Climber = new Climber();
 //  private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
   private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
  //m_ShooterFeeder,
-
-  private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
-  private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
-
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
     new CommandXboxController(OperatorConstants.kDriverControllerPort); // driver controller on configured port
@@ -66,17 +65,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
     // Configure the trigger bindings
-    DriverStation.silenceJoystickConnectionWarning(true);
     configureBindings(); // set up button->command mappings
-      autoChooser = AutoBuilder.buildAutoChooser();
-          SmartDashboard.putData("Auto Chooser", autoChooser);
- //Set the default auto (do nothing) 
-    autoChooser.setDefaultOption("Do Nothing", Commands.none());
-
-    //Add a simple auto option to have the robot drive forward for 1 second then stop
-    autoChooser.addOption("Drive Forward", drivebase.getAutonomousCommand("New Auto"));
-
-    NamedCommands.registerCommand("test", Commands.print("Hello World"));
     
     // Set the default command to hold shooter at rest (0 RPM)
      m_Shooter.setDefaultCommand(m_Shooter.Stop()); // default command to stop shooter
@@ -131,6 +120,8 @@ public class RobotContainer {
                                          .translationHeadingOffset(Rotation2d.fromDegrees(
                                            0)); // offset in degrees
 
+
+
 Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(driveDirectAngleKeyboard); // drive command for keyboard/direct-angle
 
   /**
@@ -142,6 +133,7 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
    * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
+
   /**
    * Configure the trigger->command mappings. This hooks controller buttons
    * up to commands that operate subsystems (for example, spinning the shooter
@@ -151,16 +143,16 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
     m_operatorController.a().whileTrue(m_Intake.IntakeOn(RPM.of(1500))); // operator A: run intake at 3000 RPM while held
     m_operatorController.b().whileTrue(m_Intake.ReverseIntake()); // operator B: run intake in reverse at 30% while held
   // Driver X: move arm to 90° using YAMS closed-loop position command (Option A)
-    m_operatorController.x().onTrue(m_arm.setAngle(Degrees.of(90)));
-    m_operatorController.y().whileTrue(m_arm.set(0.7).andThen(m_arm.setAngle(Degrees.of(0)))); // operator Y: stow arm at starting position while held
+    m_operatorController.x().onTrue(m_arm.setAngle(Degrees.of(45)));
+    m_operatorController.y().whileTrue(m_arm.set(0.1)); // operator Y: stow arm at starting position while held
   // Driver X: move arm to 90° using open-loop fallback command (Option B, not recommended unless you have a good reason to avoid closed-loop control)
   //  m_driverController.x().onTrue(m_arm.Set_To_90_Degrees()); 
     //m_operatorController.y().whileTrue(m_arm.Agitate()); // operator Y: stow arm at starting position while held
     m_operatorController.rightBumper().onTrue(new RunShooterFeederConveyor(m_Shooter, m_conveyor));     //, m_ShooterFeeder,
     m_operatorController.rightBumper().onFalse(m_Shooter.Stop()); // Y: stop shooter while held 
     m_operatorController.leftBumper().onTrue(m_conveyor.ReverseConveyor());
-    m_operatorController.leftTrigger().whileTrue(m_Climber.set(0.5)); // left trigger: run climber at 50% while held
-  
+    //m_operatorController.povUp().whileTrue(m_Climber.set(0.1)); // left trigger: run climber at 50% while held
+   // m_operatorController.povDown().onTrue(m_Climber.setHeightAndStop(Inches.of(12))); // right trigger: run climber in reverse at 50% while held
     // Map driver controller buttons to shooter commands
    
   }
@@ -173,18 +165,15 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-<<<<<<< HEAD
     return Autos.exampleAuto(m_Shooter, 
     //m_ShooterFeeder, 
     m_conveyor); // return the example auto command (replace with your own command)
   }
 
-
+  public void teleoperatedInit() {
+    m_arm.setAngleSetpoint(Degrees.of(0)); // reset arm to starting position at the beginning of teleop
+    // Any initialization code for teleop can go here. For example, you could reset sensors or set initial subsystem states.
   
 
  
-=======
-    return Autos.exampleAuto(m_Shooter, m_ShooterFeeder, m_conveyor); // return the example auto command (replace with your own command)
-  }
->>>>>>> bce248d2f5d9c4037211120c1f8029bfa4f40872
-}
+  }}
