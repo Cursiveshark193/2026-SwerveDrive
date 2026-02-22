@@ -7,8 +7,8 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import static edu.wpi.first.units.Units.RPM;
 
+import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
-//import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.conveyor;
 
 public class RunShooterFeederConveyor extends ParallelCommandGroup {
@@ -16,16 +16,91 @@ public class RunShooterFeederConveyor extends ParallelCommandGroup {
    * Run shooter, feeder, and conveyor simultaneously.
    *
    * Replace the feeder/conveyor command calls with the actual command factories.
+   * 
+   * 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
    *///FeederSubsystem feeder,
-  public RunShooterFeederConveyor(ShooterSubsystem shooter,  conveyor conv) {
+  public RunShooterFeederConveyor(ShooterSubsystem shooter, FeederSubsystem feeder, conveyor conv) {
     // Add the commands to run in parallel. These must be Commands returned by your subsystems.
     addCommands(
-      shooter.setVelocity(RPM.of(3000)),       // closed-loop shooter command
-      //feeder.SpinAt1000RPM(),                  // <-- replace with real feeder command
+      shooter.setDutyCycle(1),       // closed-loop shooter command
+      feeder.ReverseFeeder(),                  // <-- replace with real feeder command
       conv.ReverseConveyor()           // <-- replace with real conveyor command
     );
 
     // Declare that this command requires all three subsystems to avoid resource conflicts.
-    addRequirements(shooter, conv);//feeder
+    addRequirements(shooter, feeder, conv);
   }
 }

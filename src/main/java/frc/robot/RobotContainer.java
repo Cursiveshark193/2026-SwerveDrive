@@ -15,7 +15,7 @@ import frc.robot.subsystems.conveyor;
 import frc.robot.subsystems.intake;
 import yams.mechanisms.positional.Arm;
 import yams.mechanisms.positional.Elevator;
-//import frc.robot.subsystems.FeederSubsystem; // example second mechanism subsystem for shooter feeder
+import frc.robot.subsystems.FeederSubsystem; // example second mechanism subsystem for shooter feeder
 import swervelib.SwerveInputStream; // helper to build swerve input streams
 
 import static edu.wpi.first.units.Units.Degrees;
@@ -50,8 +50,8 @@ public class RobotContainer {
   private final intake m_Intake = new intake(); // intake (disabled)
   private final arm m_arm = new arm();  
   //private final Climber m_Climber = new Climber();
-//  private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
-  private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
+  private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
+  private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
  //m_ShooterFeeder,
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
@@ -140,21 +140,10 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
    * or running the intake).
    */
   private void configureBindings() { // map controller inputs to commands
-    m_operatorController.a().whileTrue(m_Intake.IntakeOn(RPM.of(1500))); // operator A: run intake at 3000 RPM while held
-    m_operatorController.b().whileTrue(m_Intake.ReverseIntake()); // operator B: run intake in reverse at 30% while held
-  // Driver X: move arm to 90° using YAMS closed-loop position command (Option A)
-    m_operatorController.x().onTrue(m_arm.setAngle(Degrees.of(45)));
-    m_operatorController.y().whileTrue(m_arm.set(0.1)); // operator Y: stow arm at starting position while held
-  // Driver X: move arm to 90° using open-loop fallback command (Option B, not recommended unless you have a good reason to avoid closed-loop control)
-  //  m_driverController.x().onTrue(m_arm.Set_To_90_Degrees()); 
-    //m_operatorController.y().whileTrue(m_arm.Agitate()); // operator Y: stow arm at starting position while held
-    m_operatorController.rightBumper().onTrue(new RunShooterFeederConveyor(m_Shooter, m_conveyor));     //, m_ShooterFeeder,
-    m_operatorController.rightBumper().onFalse(m_Shooter.Stop()); // Y: stop shooter while held 
-    m_operatorController.leftBumper().onTrue(m_conveyor.ReverseConveyor());
-    //m_operatorController.povUp().whileTrue(m_Climber.set(0.1)); // left trigger: run climber at 50% while held
-   // m_operatorController.povDown().onTrue(m_Climber.setHeightAndStop(Inches.of(12))); // right trigger: run climber in reverse at 50% while held
-    // Map driver controller buttons to shooter commands
-   
+   m_operatorController.a().whileTrue(m_Intake.IntakeOn(RPM.of(3000))); //  hold A on operator controller to run intake  at 3000 RPM
+    m_operatorController.b().whileTrue(m_Intake.IntakeOn(RPM.of(-3000))); // hold B on operator controller to run intake in reverse at 3000 RPM
+     m_operatorController.rightBumper().whileTrue(new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor));
+     m_operatorController.leftBumper().whileTrue(m_ShooterFeeder.ReverseFeeder()); // hold left bumper to run shooter, feeder, and conveyor at 1000 RPM
   }
 
   
@@ -166,7 +155,7 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return Autos.exampleAuto(m_Shooter, 
-    //m_ShooterFeeder, 
+    m_ShooterFeeder, 
     m_conveyor); // return the example auto command (replace with your own command)
   }
 
