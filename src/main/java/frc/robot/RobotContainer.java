@@ -144,6 +144,8 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
     m_operatorController.b().whileTrue(m_Intake.IntakeOn(RPM.of(-3000))); // hold B on operator controller to run intake in reverse at 3000 RPM
      m_operatorController.rightBumper().whileTrue(new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor));
      m_operatorController.leftBumper().whileTrue(m_ShooterFeeder.ReverseFeeder()); // hold left bumper to run shooter, feeder, and conveyor at 1000 RPM
+      m_operatorController.x().whileTrue(m_arm.setAngle(Degrees.of(45))); // hold X to move arm to 45 degrees
+      m_operatorController.y().whileTrue(m_arm.setAngle(Degrees.of(0))); // hold Y to move arm back to 0 degrees
   }
 
   
