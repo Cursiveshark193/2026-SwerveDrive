@@ -72,6 +72,7 @@ public class RobotContainer {
      m_conveyor.setDefaultCommand(m_conveyor.StopConveyor()); // default command to stop conveyor
     m_Intake.setDefaultCommand(m_Intake.IntakeOff()); // intake angle default (disabled)
     // Choose a default drive command depending on whether we're in sim
+    m_arm.setDefaultCommand(m_arm.set(0));
     m_ShooterFeeder.setDefaultCommand(m_ShooterFeeder.StopFeeder());
     drivebase.setDefaultCommand(!RobotBase.isSimulation() ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngleKeyboard);
   }
@@ -145,7 +146,7 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
      m_operatorController.rightBumper().whileTrue(new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor));
      m_operatorController.leftBumper().whileTrue(m_ShooterFeeder.ReverseFeeder()); // hold left bumper to run shooter, feeder, and conveyor at 1000 RPM
       m_operatorController.x().whileTrue(m_arm.setAngle(Degrees.of(45))); // hold X to move arm to 45 degrees
-      m_operatorController.y().whileTrue(m_arm.setAngle(Degrees.of(0))); // hold Y to move arm back to 0 degrees
+      m_operatorController.y().whileTrue(m_arm.set(0.3)); // hold Y to move arm back to 0 degrees
   }
 
   
@@ -162,7 +163,7 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
   }
 
   public void teleoperatedInit() {
-    m_arm.setAngleSetpoint(Degrees.of(0)); // reset arm to starting position at the beginning of teleop
+   // m_arm.setAngleSetpoint(Degrees.of(0)); // reset arm to starting position at the beginning of teleop
     // Any initialization code for teleop can go here. For example, you could reset sensors or set initial subsystem states.
   
 
