@@ -53,23 +53,23 @@ public class arm extends SubsystemBase {
   // Motor properties to prevent over currenting.
   .withMotorInverted(false)
   .withIdleMode(MotorMode.BRAKE)
-  .withStatorCurrentLimit(Amps.of(40))
+  .withStatorCurrentLimit(Amps.of(60))
   .withClosedLoopRampRate(Seconds.of(0.25))
   .withOpenLoopRampRate(Seconds.of(0.25));
 
   // Vendor motor controller object
-  private SparkMax spark = new SparkMax(4, MotorType.kBrushless);
+  private SparkMax spark = new SparkMax(17, MotorType.kBrushless);
 
   // Create our SmartMotorController from our Spark and config with the NEO.
   private SmartMotorController sparkSmartMotorController = new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig);
 
   private ArmConfig armCfg = new ArmConfig(sparkSmartMotorController)
   // Soft limit is applied to the SmartMotorControllers PID
-  .withSoftLimits(Degrees.of(-1), Degrees.of(90))
+  .withSoftLimits(Radians.of(-1), Radians.of(75.48))
   // Hard limit is applied to the simulation.
-  .withHardLimit(Degrees.of(-0), Degrees.of(90))
+  .withHardLimit(Radians.of(-0), Radians.of(75.48))
   // Starting position is where your arm starts
-  .withStartingPosition(Degrees.of(-5))
+  .withStartingPosition(Radians.of(-5))
   // Length and mass of your arm for sim.
   .withLength(Feet.of(3))
   .withMass(Pounds.of(1))
@@ -97,7 +97,7 @@ public class arm extends SubsystemBase {
    * Set arm closed loop controller to go to the specified mechanism position.
    * @param angle Angle to go to.
    */
-  public void setAngleSetpoint(Angle angle) { arm.setMechanismPositionSetpoint(angle); }
+  //public void setAngleSetpoint(Angle angle) { arm.setMechanismPositionSetpoint(angle); }
 
   /**
    * Move the arm up and down.
