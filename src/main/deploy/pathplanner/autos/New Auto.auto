@@ -5,9 +5,34 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "Example Path"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Path 1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "wait"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 5.0
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Path 2"
+                }
+              }
+            ]
           }
         }
       ]

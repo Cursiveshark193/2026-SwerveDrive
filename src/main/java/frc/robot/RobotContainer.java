@@ -6,7 +6,6 @@ package frc.robot; // root package for robot code
 
 import frc.robot.Constants.OperatorConstants; // operator constants (joystick ports, deadbands)
 import frc.robot.commands.Autos; // autonomous command factories
-import frc.robot.commands.DriveLeftCmd;
 import frc.robot.commands.RunShooterFeederConveyor;
 import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ShooterSubsystem; // shooter subsystem
@@ -19,6 +18,7 @@ import yams.mechanisms.positional.Elevator;
 //import frc.robot.subsystems.FeederSubsystem; // example second mechanism subsystem for shooter feeder
 import swervelib.SwerveInputStream; // helper to build swerve input streams
 import frc.robot.commands.ShooterCmd;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
@@ -185,7 +185,9 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
     return new SequentialCommandGroup(
-          new DriveLeftCmd(drivebase, 8.27), // drive left for 8.27 meters (half the field width)
+          AutoBuilder.followPath(Path1),
+          new WaitCommand(5.0),
+          AutoBuilder.followPath(Path2),
           new ShooterCmd(m_Shooter, 5.0) // run shooter for 3 seconds
 
     );
