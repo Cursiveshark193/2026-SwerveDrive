@@ -59,13 +59,13 @@ public class RobotContainer {
   private final intake m_Intake = new intake(); // intake (disabled)
   private final arm m_arm = new arm();  
   //private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
-  private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter,  m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
-    private final SendableChooser<Command> autoChooser;
-//m_ShooterFeeder
+ 
   //private final Climber m_Climber = new Climber();
   private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
-  private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
- //m_ShooterFeeder,
+ //m_ShooterFeeder, 
+ private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
+    private final SendableChooser<Command> autoChooser;
+//m_ShooterFeeder
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
     new CommandXboxController(OperatorConstants.kDriverControllerPort); // driver controller on configured port
@@ -178,26 +178,25 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+   return new SequentialCommandGroup(
+         autoChooser.getSelected(),
+         new WaitCommand(1), // wait for 1 second after auto (optional)
+         new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor).withTimeout(30) // run shooter, feeder, and conveyor for 3 seconds
+     );  
+          // run the selected auto from the chooser
+          // then run the shooter, feeder, and conveyor for 3 seconds;
+           // run shooter for 3 seconds
+
+    
     // An example command will be run in autonomous
-    return Autos.exampleAuto(m_Shooter, 
-    m_ShooterFeeder, 
-    m_conveyor); // return the example auto command (replace with your own command)
+     // return the example auto command (replace with your own command)
   }
 
-  public void teleoperatedInit() {
-    m_arm.setAngleSetpoint(Degrees.of(0)); // reset arm to starting position at the beginning of teleop
-    // Any initialization code for teleop can go here. For example, you could reset sensors or set initial subsystem states.
   
 
  
-  }}
-    return new SequentialCommandGroup(
-          AutoBuilder.followPath(Path1),
-          new WaitCommand(5.0),
-          AutoBuilder.followPath(Path2),
-          new ShooterCmd(m_Shooter, 5.0) // run shooter for 3 seconds
+  
+    
 
-    );
-
-  }
+  
 }
