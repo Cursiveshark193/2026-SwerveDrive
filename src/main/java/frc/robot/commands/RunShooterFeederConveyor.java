@@ -24,7 +24,7 @@ public class RunShooterFeederConveyor extends ParallelCommandGroup {
   public RunShooterFeederConveyor(ShooterSubsystem shooter, FeederSubsystem feeder, conveyor conv) {
     // Add the commands to run in parallel. These must be Commands returned by your subsystems.
     addCommands(
-      shooter.setDutyCycle(1),       // closed-loop shooter command
+      shooter.setVelocity(RPM.of(4000)),       // closed-loop shooter command
       feeder.ReverseFeeder(),                  // <-- replace with real feeder command
       conv.ReverseConveyor()           // <-- replace with real conveyor command
     );
