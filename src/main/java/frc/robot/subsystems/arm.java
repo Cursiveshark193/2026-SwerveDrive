@@ -25,7 +25,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
-import yams.mechanisms.SmartMechanism;
 import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.positional.Arm;
 import yams.motorcontrollers.SmartMotorController;
@@ -38,7 +37,7 @@ import yams.motorcontrollers.local.SparkWrapper;
 public class arm extends SubsystemBase {
 
   private SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
-  .withControlMode(ControlMode.CLOSED_LOOP)
+  .withControlMode(ControlMode.CLOSED_LOOP) // Control mode for the arm motor controller. Closed-loop control is recommended for arms to prevent damage and improve performance.
   // Feedback Constants (PID Constants)
   .withClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
   .withSimClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
@@ -49,13 +48,13 @@ public class arm extends SubsystemBase {
   .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
   // Gearing from the motor rotor to final shaft.
   // In this example GearBox.fromReductionStages(3,4) is the same as GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to your motor.
-  .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
+  .withGearing(new MechanismGearing(GearBox.fromReductionStages(9,5)))
   // Motor properties to prevent over currenting.
   .withMotorInverted(false)
   .withIdleMode(MotorMode.BRAKE)
   .withStatorCurrentLimit(Amps.of(60))
-  .withClosedLoopRampRate(Seconds.of(0.25))
-  .withOpenLoopRampRate(Seconds.of(0.25));
+  .withClosedLoopRampRate(Seconds.of(25))
+  .withOpenLoopRampRate(Seconds.of(25));
 
   // Vendor motor controller object
   private SparkMax spark = new SparkMax(17, MotorType.kBrushless);
@@ -65,14 +64,13 @@ public class arm extends SubsystemBase {
 
   private ArmConfig armCfg = new ArmConfig(sparkSmartMotorController)
   // Soft limit is applied to the SmartMotorControllers PID
-  .withSoftLimits(Radians.of(-1), Radians.of(75.48))
   // Hard limit is applied to the simulation.
-  .withHardLimit(Radians.of(-0), Radians.of(75.48))
+  .withHardLimit(Degrees.of(-0), Degrees.of(95.48))
   // Starting position is where your arm starts
-  .withStartingPosition(Radians.of(-5))
+  .withStartingPosition(Degrees.of(0))
   // Length and mass of your arm for sim.
-  .withLength(Feet.of(3))
-  .withMass(Pounds.of(1))
+  .withLength(Feet.of(1.5))
+  .withMass(Pounds.of(6))
   // Telemetry name and verbosity for the arm.
   .withTelemetry("Arm", TelemetryVerbosity.HIGH);
 

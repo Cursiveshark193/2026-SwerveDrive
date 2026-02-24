@@ -17,81 +17,10 @@ public class RunShooterFeederConveyor extends ParallelCommandGroup {
    *
    * Replace the feeder/conveyor command calls with the actual command factories.
    * 
-   * 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-   
-   *///FeederSubsystem feeder,
+   * @param shooter the shooter subsystem to run
+   * @param feeder the feeder subsystem to run
+   * @param conv the conveyor subsystem to run
+   */ 
   public RunShooterFeederConveyor(ShooterSubsystem shooter, FeederSubsystem feeder, conveyor conv) {
     // Add the commands to run in parallel. These must be Commands returned by your subsystems.
     addCommands(
