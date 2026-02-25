@@ -44,8 +44,7 @@ public class FeederSubsystem extends SubsystemBase {
       .withStatorCurrentLimit(Amps.of(40)); // stator current limit to protect hardware
       
 
-  private SparkMax conveyorSpark = new SparkMax(19, MotorType.kBrushless); // example second SparkMax for conveyor on CAN ID 17
-  // Create SmartMotorController for conveyor SparkMax with its config and motor model (NEO550)
+  private SparkMax conveyorSpark = new SparkMax(19, MotorType.kBrushless);
   private SmartMotorController conveyorSmartMotorController = new SparkWrapper(conveyorSpark, DCMotor.getNEO(1), ConveyorConfig); // wrap second SparkMax with SmartMotorController for conveyor
 
   private final FlyWheelConfig conveyorConfig = new FlyWheelConfig(conveyorSmartMotorController) // mechanism config for conveyor
@@ -57,7 +56,7 @@ public class FeederSubsystem extends SubsystemBase {
 public FlyWheel feeder = new FlyWheel(conveyorConfig); // example second mechanism for conveyor)
 
   public Command RunFeeder () {
-    return feeder.setSpeed(RPM.of(100)); // example command to set flywheel to 100 RPM (replace with desired speed)
+    return feeder.set(1); // example command to set flywheel to 100 RPM (replace with desired speed)
   }
  public Command StopFeeder() {
    return feeder.setSpeed(RPM.of(0)); // command to stop conveyor

@@ -143,7 +143,7 @@ public class ShooterSubsystem extends SubsystemBase { // subsystem that encapsul
                                                                  .withSoftLimit(RPM.of(
                                                                   -50000), 
                                                                   RPM.of(
-                                                         50000)); // soft limits for speed
+                                                         5000)); // soft limits for speed
   // .withSpeedometerSimulation(RPM.of(0)); // optional: initial simulated speed
   private final FlyWheel shooter = new FlyWheel(shooterConfig);
                          // create FlyWheel mechanism for leader 

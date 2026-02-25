@@ -39,7 +39,7 @@ import static edu.wpi.first.units.Units.Meter;
  * configured prior to creating the drive to reduce unnecessary allocations.
  */
 public class SwerveSubsystem extends SubsystemBase {
-  /** Create a new SwerveSubsystem and parse the deployed swerve configuration. */
+  /** Create a new SwerveSubsystem and parse the deployed swerve configuration. */ 
   File directory = new File(Filesystem.getDeployDirectory(),"swerve");
   SwerveDrive  swerveDrive;
   public SwerveSubsystem() {
@@ -56,9 +56,14 @@ public class SwerveSubsystem extends SubsystemBase {
      try
     {
       swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED,startingPose);
+      swerveDrive.setAutoCenteringModules(true);
+      swerveDrive.setChassisDiscretization(true, 0.02);
+       swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
+    swerveDrive.setCosineCompensator(false); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+  }
       // Alternative method if you don't want to supply the conversion factor via JSON files.
       // swerveDrive = new SwerveParser(directory).createSwerveDrive(maximumSpeed, angleConversionFactor, driveConversionFactor);
-    } catch (Exception e)
+     catch (Exception e)
     {
       throw new RuntimeException(e);
     }

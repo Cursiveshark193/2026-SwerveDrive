@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.GearBox;
@@ -48,13 +49,13 @@ public class conveyor extends SubsystemBase {
   private final FlyWheelConfig conveyorConfig = new FlyWheelConfig(conveyorSmartMotorController) // mechanism config for conveyor
       .withDiameter(Inches.of(2)) // example diameter for conveyor roller
       .withMass(Pounds.of(5)) // example mass for conveyor roller
-      .withUpperSoftLimit(RPM.of(100)) // example upper soft speed limit for conveyor
+      .withUpperSoftLimit(RPM.of(10000)) // example upper soft speed limit for conveyor
       .withTelemetry("conveyorMech", TelemetryVerbosity.HIGH); // telemetry label for conveyor mechanism
 
 public FlyWheel conveyor = new FlyWheel(conveyorConfig); // example second mechanism for conveyor)
 
   public Command RunConveyor () {
-    return conveyor.setSpeed(RPM.of(100)); // example command to set flywheel to 100 RPM (replace with desired speed)
+    return conveyor.set(0.4); // example command to set flywheel to desired speed
   }
  public Command StopConveyor() {
    return conveyor.setSpeed(RPM.of(0)); // command to stop conveyor
