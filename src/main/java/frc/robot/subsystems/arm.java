@@ -67,7 +67,7 @@ public class arm extends SubsystemBase {
   // Hard limit is applied to the simulation.
   .withHardLimit(Degrees.of(-0), Degrees.of(95.48))
   // Starting position is where your arm starts
-  .withStartingPosition(Degrees.of(0))
+  .withStartingPosition(Degrees.of(90))
   // Length and mass of your arm for sim.
   .withLength(Feet.of(1.5))
   .withMass(Pounds.of(6))

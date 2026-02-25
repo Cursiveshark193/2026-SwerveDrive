@@ -217,21 +217,24 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return new SequentialCommandGroup(
-        autoChooser.getSelected(),
-        Commands.sequence(
-            Commands.waitSeconds(0.25)
-                .andThen(m_Shooter.setDutyCycle(1.0))) // run shooter at 4000 RPM for 0.25 seconds to get up to speed
-            .alongWith(
-                Commands.parallel(
-                    // keep shooter running at 4000 RPM,
-                    Commands.waitSeconds(3)
-                        .andThen(m_ShooterFeeder.ReverseFeeder()
-                            .alongWith(m_conveyor.RunConveyor())
-                            .alongWith(m_Intake.ReverseIntake().alongWith(
-                                m_arm.set(0.15).withTimeout(0.25).repeatedly()
-                                    .andThen(m_arm.set(-0.15).withTimeout(0.25)))
-                                .repeatedly())))))
-        .withTimeout(10.0); // run the shooter/feeder/conveyor for 3 seconds
+        
+        autoChooser.getSelected().alongWith(
+        m_arm.set(-0.15).withTimeout(0.25)),
+        (Commands.sequence(
+        Commands.waitSeconds(0.125)
+            .andThen(m_Shooter.setDutyCycle(1.0))) // run shooter at 4000 RPM for 0.25 seconds to get up to speed
+        .alongWith(
+            Commands.parallel(
+                // keep shooter running at 4000 RPM,
+                Commands.waitSeconds(3)
+                    .andThen(m_ShooterFeeder.ReverseFeeder().alongWith(m_conveyor.ReverseConveyor())
+                        .alongWith(m_Intake.IntakeOn()
+                            .alongWith(m_arm.set(0.15)
+                                .withTimeout(0.5)
+                                .andThen(m_arm.set(-0.15)
+                                    .repeatedly()
+                                    .withTimeout(0.5))
+                                .repeatedly()))))))); // run the shooter/feeder/conveyor for 3 seconds
 
     // run the selected auto from the chooser
     // then run the shooter, feeder, and conveyor for 3 seconds;
