@@ -13,10 +13,6 @@ import frc.robot.subsystems.conveyor;
 import frc.robot.subsystems.intake;
 import frc.robot.subsystems.FeederSubsystem; // example second mechanism subsystem for shooter feeder
 import swervelib.SwerveInputStream; // helper to build swerve input streams
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.RPM; // RPM unit helper
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -30,11 +26,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController; // Xbox controller wrapper for commands
 
-
 /**
- * This class is where the bulk of the robot should be declared. Since Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
@@ -43,22 +41,37 @@ public class RobotContainer {
 
   /** The robot's shooter subsystem. */
   private final ShooterSubsystem m_Shooter = new ShooterSubsystem(); // instantiate the shooter subsystem
-  private final conveyor m_conveyor = new conveyor(); // example second mechanism for conveyor (can also be in its own subsystem if desired)
+  private final conveyor m_conveyor = new conveyor(); // example second mechanism for conveyor (can also be in its own
+                                                      // subsystem if desired)
   private final intake m_Intake = new intake(); // intake (disabled)
-  private final arm m_arm = new arm();  
-  //private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
- 
-  //private final Climber m_Climber = new Climber();
-  private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
- //m_ShooterFeeder, 
- //private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
-    private final SendableChooser<Command> autoChooser;
+  private final arm m_arm = new arm();
+  // private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); //
+  // example second mechanism for shooter feeder (can also be in its own subsystem
+  // if desired)
 
+  // private final Climber m_Climber = new Climber();
+  private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder
+                                                                         // (can also be in its own subsystem if
+                                                                         // desired)
+  // m_ShooterFeeder,
+  private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_ShooterFeeder, m_conveyor); // example
+                                                                                                                       // command
+                                                                                                                       // that
+                                                                                                                       // uses
+                                                                                                                       // multiple
+                                                                                                                       // subsystems
+                                                                                                                       // (shooter,
+                                                                                                                       // shooter
+                                                                                                                       // feeder,
+                                                                                                                       // and
+                                                                                                                       // conveyor)
+  private final SendableChooser<Command> autoChooser;
+  // m_ShooterFeeder
   // Replace with CommandPS4Controller or CommandJoystick if needed
-  private final CommandXboxController m_driverController =
-    new CommandXboxController(OperatorConstants.kDriverControllerPort); // driver controller on configured port
-  private final CommandXboxController m_operatorController =
-    new CommandXboxController(OperatorConstants.kOperatorControllerPort); // operator controller on configured port
+  private final CommandXboxController m_driverController = new CommandXboxController(
+      OperatorConstants.kDriverControllerPort); // driver controller on configured port
+  private final CommandXboxController m_operatorController = new CommandXboxController(
+      OperatorConstants.kOperatorControllerPort); // operator controller on configured port
 
   /**
    * RobotContainer constructor. Creates subsystems, configures button bindings,
@@ -68,81 +81,99 @@ public class RobotContainer {
     // Configure the trigger bindings
     DriverStation.silenceJoystickConnectionWarning(true);
     configureBindings(); // set up button->command mappings
-      autoChooser = AutoBuilder.buildAutoChooser();
-          SmartDashboard.putData("Auto Chooser", autoChooser);
- //Set the default auto (do nothing) 
+    autoChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoChooser);
+    // Set the default auto (do nothing)
     autoChooser.setDefaultOption("Do Nothing", Commands.none());
 
-    //Add a simple auto option to have the robot drive forward for 1 second then stop
+    // Add a simple auto option to have the robot drive forward for 1 second then
+    // stop
     autoChooser.addOption("Drive Forward", drivebase.getAutonomousCommand("New Auto"));
 
     NamedCommands.registerCommand("test", Commands.print("Hello World"));
-    
+
     // Set the default command to hold shooter at rest (0 RPM)
-     m_Shooter.setDefaultCommand(m_Shooter.Stop()); // default command to stop shooter
-     m_conveyor.setDefaultCommand(m_conveyor.StopConveyor()); // default command to stop conveyor
+    m_Shooter.setDefaultCommand(m_Shooter.Stop()); // default command to stop shooter
+    m_conveyor.setDefaultCommand(m_conveyor.StopConveyor()); // default command to stop conveyor
     m_Intake.setDefaultCommand(m_Intake.IntakeOff()); // intake angle default (disabled)
     // Choose a default drive command depending on whether we're in sim
     m_arm.setDefaultCommand(m_arm.set(0));
     m_ShooterFeeder.setDefaultCommand(m_ShooterFeeder.StopFeeder());
-    drivebase.setDefaultCommand(!RobotBase.isSimulation() ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngleKeyboard);
+    drivebase.setDefaultCommand(
+        !RobotBase.isSimulation() ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngleKeyboard);
   }
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(), // build input stream from controller axes
-                                                                () -> m_driverController.getLeftY() * -1, // forward/back (invert axis)
-                                                                () -> m_driverController.getLeftX() * -1) // strafe (invert axis)
-                                                            .withControllerRotationAxis(m_driverController::getRightX) // rotation from right stick X
-                                                            .deadband(OperatorConstants.DEADBAND) // apply deadband
-                                                            .scaleTranslation(0.8) // scale translational speed
-                                                            .allianceRelativeControl(true); // make controls alliance-relative
 
-  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(m_driverController::getRightX, // derive heading vector from right stick
-                                                                                             m_driverController::getRightY)
-                                                           .headingWhile(true); // hold heading while condition true
-  
-  Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);  // command for field-oriented driving using direct-angle input
-  
-  Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);  // command for field-oriented driving using angular velocity input
-  
-  SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(), // keyboard/alternate mapping variant
-                                    () -> -m_driverController.getLeftY(), // forward/back
-                                    () -> -m_driverController.getLeftX()) // strafe
-                                  .withControllerRotationAxis(() -> m_driverController.getRawAxis(
-                                    2)) // rotation axis from raw axis 2
-                                  .deadband(OperatorConstants.DEADBAND) // deadband
-                                  .scaleTranslation(0.8) // translation scaling
-                                  .allianceRelativeControl(true); // alliance relative
+  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(), // build input stream from
+                                                                                            // controller axes
+      () -> m_driverController.getLeftY() * -1, // forward/back (invert axis)
+      () -> m_driverController.getLeftX() * -1) // strafe (invert axis)
+      .withControllerRotationAxis(m_driverController::getRightX) // rotation from right stick X
+      .deadband(OperatorConstants.DEADBAND) // apply deadband
+      .scaleTranslation(0.8) // scale translational speed
+      .allianceRelativeControl(true); // make controls alliance-relative
+
+  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
+      .withControllerHeadingAxis(m_driverController::getRightX, // derive heading vector from right stick
+          m_driverController::getRightY)
+      .deadband(0.15)
+      .headingWhile(true); // hold heading while condition true
+
+  Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle); // command for field-oriented
+                                                                                          // driving using direct-angle
+                                                                                          // input
+
+  Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity); // command for
+                                                                                                  // field-oriented
+                                                                                                  // driving using
+                                                                                                  // angular velocity
+                                                                                                  // input
+
+  SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(), // keyboard/alternate
+                                                                                                    // mapping variant
+      () -> -m_driverController.getLeftY(), // forward/back
+      () -> -m_driverController.getLeftX()) // strafe
+      .withControllerRotationAxis(() -> m_driverController.getRawAxis(
+          2)) // rotation axis from raw axis 2
+      .deadband(OperatorConstants.DEADBAND) // deadband
+      .scaleTranslation(0.8) // translation scaling
+      .allianceRelativeControl(true); // alliance relative
   // Derive the heading axis with math (alternate mapping for keyboard/controller)
-  SwerveInputStream driveDirectAngleKeyboard     = driveAngularVelocityKeyboard.copy()
-                                         .withControllerHeadingAxis(() ->
-                                                        Math.sin(
-                                                          m_driverController.getRawAxis(
-                                                            2) *
-                                                          Math.PI) *
-                                                        (Math.PI *
-                                                         2),
-                                                      () ->
-                                                        Math.cos(
-                                                          m_driverController.getRawAxis(
-                                                            2) *
-                                                          Math.PI) *
-                                                        (Math.PI *
-                                                         2)) // heading vector math from raw axis
-                                         .headingWhile(true) // hold heading while true
-                                         .translationHeadingOffset(true) // enable translation heading offset
-                                         .translationHeadingOffset(Rotation2d.fromDegrees(
-                                           0)); // offset in degrees
+  SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
+      .withControllerHeadingAxis(() -> Math.sin(
+          m_driverController.getRawAxis(
+              2) *
+              Math.PI)
+          *
+          (Math.PI *
+              2),
+          () -> Math.cos(
+              m_driverController.getRawAxis(
+                  2) *
+                  Math.PI)
+              *
+              (Math.PI *
+                  2)) // heading vector math from raw axis
+      .headingWhile(true) // hold heading while true
+      .translationHeadingOffset(true) // enable translation heading offset
+      .translationHeadingOffset(Rotation2d.fromDegrees(
+          0)); // offset in degrees
 
-
-
-Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(driveDirectAngleKeyboard); // drive command for keyboard/direct-angle
+  Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(driveDirectAngleKeyboard); // drive
+                                                                                                          // command for
+                                                                                                          // keyboard/direct-angle
 
   /**
-   * Use this method to define your trigger->command mappings. Triggers can be created via the
-   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with an arbitrary
+   * Use this method to define your trigger->command mappings. Triggers can be
+   * created via the
+   * {@link Trigger#Trigger(java.util.function.BooleanSupplier)} constructor with
+   * an arbitrary
    * predicate, or via the named factories in {@link
-   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for {@link
-   * CommandXboxController Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
-   * PS4} controllers or {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
+   * edu.wpi.first.wpilibj2.command.button.CommandGenericHID}'s subclasses for
+   * {@link
+   * CommandXboxController
+   * Xbox}/{@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller
+   * PS4} controllers or
+   * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
 
@@ -152,41 +183,65 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
    * or running the intake).
    */
   private void configureBindings() { // map controller inputs to commands
-   m_operatorController.a().whileTrue(m_Intake.IntakeOn(RPM.of(3000))); //  hold A on operator controller to run intake  at 3000 RPM
-    m_operatorController.b().whileTrue(m_Intake.IntakeOn(RPM.of(-3000))); // hold B on operator controller to run intake in reverse at 3000 RPM
-     m_operatorController.rightBumper().whileTrue(new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor));
-     m_operatorController.leftBumper().whileTrue(m_ShooterFeeder.ReverseFeeder()); // hold left bumper to run shooter, feeder, and conveyor at 1000 RPM
-      m_operatorController.x().whileTrue(m_arm.setReverse(-0.3)); // hold X to move arm to 45 degrees
-      m_operatorController.y().whileTrue(m_arm.set(0.15));
-       // hold Y to move arm back to 0 degrees
+    m_operatorController.a().whileTrue(m_Intake.IntakeOn().alongWith(m_conveyor.ReverseConveyor())); // hold A on
+                                                                                                     // operator
+                                                                                                     // controller to
+                                                                                                     // run intake at
+                                                                                                     // 3000 RPM
+    m_operatorController.b().whileTrue(m_Intake.ReverseIntake()); // hold B on operator controller to run intake in
+                                                                  // reverse at 3000 RPM
+    m_operatorController.rightBumper().whileTrue(Commands.sequence(
+        Commands.waitSeconds(0.125)
+            .andThen(m_Shooter.setDutyCycle(1.0))) // run shooter at 4000 RPM for 0.25 seconds to get up to speed
+        .alongWith(
+            Commands.parallel(
+                // keep shooter running at 4000 RPM,
+                Commands.waitSeconds(3)
+                    .andThen(m_ShooterFeeder.ReverseFeeder().alongWith(m_conveyor.ReverseConveyor())
+                        .alongWith(m_Intake.IntakeOn()
+                            .alongWith(m_arm.set(0.15)
+                                .withTimeout(0.5)
+                                .andThen(m_arm.set(-0.15)
+                                    .repeatedly()
+                                    .withTimeout(0.5))
+                                .repeatedly()))))));
+    m_operatorController.leftBumper().whileTrue(Commands.parallel(m_ShooterFeeder.RunFeeder().alongWith(m_conveyor.RunConveyor())));
+    m_operatorController.povDown().whileTrue(m_arm.set(-0.1)); // hold X to move arm to 45 degrees
+    m_operatorController.povUp().whileTrue(m_arm.set(0.1)); // hold Y to move arm back to 0 degrees
   }
 
-  
   /**
    * Returns the autonomous command to run during the autonomous period.
    *
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-   return new SequentialCommandGroup(
-         autoChooser.getSelected(),
-         new WaitCommand(1), // wait for 1 second after auto (optional)
-         new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor).withTimeout(30) // run shooter, feeder, and conveyor for 3 seconds
-     );  
-          // run the selected auto from the chooser
-          // then run the shooter, feeder, and conveyor for 3 seconds;
-           // run shooter for 3 seconds
+    return new SequentialCommandGroup(
+        
+        autoChooser.getSelected().alongWith(
+        m_arm.set(-0.15).withTimeout(0.25)),
+        (Commands.sequence(
+        Commands.waitSeconds(0.125)
+            .andThen(m_Shooter.setDutyCycle(1.0))) // run shooter at 4000 RPM for 0.25 seconds to get up to speed
+        .alongWith(
+            Commands.parallel(
+                // keep shooter running at 4000 RPM,
+                Commands.waitSeconds(3)
+                    .andThen(m_ShooterFeeder.ReverseFeeder().alongWith(m_conveyor.ReverseConveyor())
+                        .alongWith(m_Intake.IntakeOn()
+                            .alongWith(m_arm.set(0.15)
+                                .withTimeout(0.5)
+                                .andThen(m_arm.set(-0.15)
+                                    .repeatedly()
+                                    .withTimeout(0.5))
+                                .repeatedly()))))))); // run the shooter/feeder/conveyor for 3 seconds
 
-    
+    // run the selected auto from the chooser
+    // then run the shooter, feeder, and conveyor for 3 seconds;
+    // run shooter for 3 seconds
+
     // An example command will be run in autonomous
-     // return the example auto command (replace with your own command)
+    // return the example auto command (replace with your own command)
   }
 
-  
-
- 
-  
-    
-
-  
 }

@@ -21,7 +21,8 @@ public final class Autos {
    *///FeederSubsystem feeder,
   public static Command exampleAuto(ShooterSubsystem shooter,FeederSubsystem feeder, conveyor conv) {
     // Return a simple ExampleCommand that requires the shooter, feeder, and conveyor.
-    return new RunShooterFeederConveyor(shooter, 
+    return new RunShooterFeederConveyor(
+      //shooter, 
     feeder, 
     conv);
   }
