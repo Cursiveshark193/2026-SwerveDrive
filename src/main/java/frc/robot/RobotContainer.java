@@ -115,6 +115,7 @@ public class RobotContainer {
   SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
       .withControllerHeadingAxis(m_driverController::getRightX, // derive heading vector from right stick
           m_driverController::getRightY)
+      .deadband(0.15)
       .headingWhile(true); // hold heading while condition true
 
   Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle); // command for field-oriented
@@ -197,7 +198,7 @@ public class RobotContainer {
                 // keep shooter running at 4000 RPM,
                 Commands.waitSeconds(3)
                     .andThen(m_ShooterFeeder.ReverseFeeder().alongWith(m_conveyor.ReverseConveyor())
-                        .alongWith(m_Intake.ReverseIntake()
+                        .alongWith(m_Intake.IntakeOn()
                             .alongWith(m_arm.set(0.15)
                                 .withTimeout(0.5)
                                 .andThen(m_arm.set(-0.15)
@@ -205,8 +206,8 @@ public class RobotContainer {
                                     .withTimeout(0.5))
                                 .repeatedly()))))));
     m_operatorController.leftBumper().whileTrue(Commands.parallel(m_ShooterFeeder.RunFeeder().alongWith(m_conveyor.RunConveyor())));
-    m_operatorController.x().whileTrue(m_arm.set(-0.1)); // hold X to move arm to 45 degrees
-    m_operatorController.y().whileTrue(m_arm.set(0.1)); // hold Y to move arm back to 0 degrees
+    m_operatorController.povDown().whileTrue(m_arm.set(-0.1)); // hold X to move arm to 45 degrees
+    m_operatorController.povUp().whileTrue(m_arm.set(0.1)); // hold Y to move arm back to 0 degrees
   }
 
   /**
