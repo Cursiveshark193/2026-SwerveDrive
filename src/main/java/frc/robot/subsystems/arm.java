@@ -5,7 +5,6 @@
 package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Amps;
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Feet;
@@ -25,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import yams.gearing.GearBox;
 import yams.gearing.MechanismGearing;
-import yams.mechanisms.SmartMechanism;
 import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.positional.Arm;
 import yams.motorcontrollers.SmartMotorController;
@@ -104,6 +102,8 @@ public class arm extends SubsystemBase {
    * @param dutycycle [-1, 1] speed to set the arm too.
    */
   public Command set(double dutycycle) { return arm.set(dutycycle);}
+
+  public Command setReverse(double dutycycle) {return arm.set(dutycycle);}
 
   /**
    * Run sysId on the {@link Arm}

@@ -9,11 +9,7 @@ import static edu.wpi.first.units.Units.Second; // unit helper for seconds
 import static edu.wpi.first.units.Units.Seconds; // plural seconds helper
 import static edu.wpi.first.units.Units.Volts; // unit helper for volts
 
-import com.ctre.phoenix6.CANBus; // CTRE CAN bus type (unused but often available)
 import com.ctre.phoenix6.hardware.TalonFX; // CTRE TalonFX motor controller class
-import com.ctre.phoenix6.sim.TalonFXSimState.MotorType;
-import com.revrobotics.spark.SparkMax; // REV SparkMax (import present though not used here)
-
 import edu.wpi.first.math.system.plant.DCMotor; // WPILib DCMotor model used for simulation
 import edu.wpi.first.units.measure.AngularVelocity; // units type for angular velocity
 import edu.wpi.first.wpilibj2.command.Command; // WPILib Command type for commands
@@ -32,7 +28,6 @@ import yams.motorcontrollers.SmartMotorControllerConfig; // YAMS motor controlle
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode; // control mode enum
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode; // motor idle mode enum
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity; // telemetry verbosity enum
-import yams.motorcontrollers.local.SparkWrapper;
 import yams.motorcontrollers.remote.TalonFXWrapper; // wrapper to adapt TalonFX to SmartMotorController
 
 /**

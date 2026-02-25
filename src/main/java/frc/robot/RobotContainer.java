@@ -5,40 +5,28 @@
 package frc.robot; // root package for robot code
 
 import frc.robot.Constants.OperatorConstants; // operator constants (joystick ports, deadbands)
-import frc.robot.commands.Autos; // autonomous command factories
 import frc.robot.commands.RunShooterFeederConveyor;
-import frc.robot.subsystems.Climber;
 import frc.robot.subsystems.ShooterSubsystem; // shooter subsystem
 import frc.robot.subsystems.SwerveSubsystem; // swerve drive subsystem
 import frc.robot.subsystems.arm;
 import frc.robot.subsystems.conveyor;
 import frc.robot.subsystems.intake;
-import yams.mechanisms.positional.Arm;
-import yams.mechanisms.positional.Elevator;
 import frc.robot.subsystems.FeederSubsystem; // example second mechanism subsystem for shooter feeder
 import swervelib.SwerveInputStream; // helper to build swerve input streams
-import frc.robot.commands.ShooterCmd;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 
 import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Inches;
 import static edu.wpi.first.units.Units.RPM; // RPM unit helper
-import static edu.wpi.first.units.Units.Radians;
-
-import java.util.function.Supplier;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
 import edu.wpi.first.math.geometry.Rotation2d; // 2D rotation helper
-import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase; // robot base utility (simulation check)
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command; // WPILib command interface
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController; // Xbox controller wrapper for commands
 
@@ -63,9 +51,9 @@ public class RobotContainer {
   //private final Climber m_Climber = new Climber();
   private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder (can also be in its own subsystem if desired)
  //m_ShooterFeeder, 
- private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
+ //private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor); // example command that uses multiple subsystems (shooter, shooter feeder, and conveyor)
     private final SendableChooser<Command> autoChooser;
-//m_ShooterFeeder
+
   // Replace with CommandPS4Controller or CommandJoystick if needed
   private final CommandXboxController m_driverController =
     new CommandXboxController(OperatorConstants.kDriverControllerPort); // driver controller on configured port
@@ -168,8 +156,9 @@ Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(dri
     m_operatorController.b().whileTrue(m_Intake.IntakeOn(RPM.of(-3000))); // hold B on operator controller to run intake in reverse at 3000 RPM
      m_operatorController.rightBumper().whileTrue(new RunShooterFeederConveyor(m_Shooter, m_ShooterFeeder, m_conveyor));
      m_operatorController.leftBumper().whileTrue(m_ShooterFeeder.ReverseFeeder()); // hold left bumper to run shooter, feeder, and conveyor at 1000 RPM
-      m_operatorController.x().whileTrue(m_arm.setAngle(Degrees.of(45))); // hold X to move arm to 45 degrees
-      m_operatorController.y().whileTrue(m_arm.set(0.3)); // hold Y to move arm back to 0 degrees
+      m_operatorController.x().whileTrue(m_arm.setReverse(-0.3)); // hold X to move arm to 45 degrees
+      m_operatorController.y().whileTrue(m_arm.set(0.15));
+       // hold Y to move arm back to 0 degrees
   }
 
   
