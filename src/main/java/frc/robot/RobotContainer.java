@@ -200,6 +200,8 @@ public class RobotContainer {
                                     .repeatedly()
                                     .withTimeout(0.5))
                                 .repeatedly()))))));
+    m_driverController.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+    m_driverController.start().whileTrue(drivebase.centerModulesCommand());
     m_operatorController.leftBumper().whileTrue(Commands.parallel(m_ShooterFeeder.RunFeeder().alongWith(m_conveyor.RunConveyor())));
     m_operatorController.povDown().whileTrue(m_arm.set(-0.1)); // hold X to move arm to 45 degrees
     m_operatorController.povUp().whileTrue(m_arm.set(0.1)); // hold Y to move arm back to 0 degrees
@@ -238,5 +240,8 @@ public class RobotContainer {
     // An example command will be run in autonomous
     // return the example auto command (replace with your own command)
   }
-
+public void setMotorBrake(boolean brake)
+  {
+    drivebase.setMotorBrake(brake);
+  }
 }

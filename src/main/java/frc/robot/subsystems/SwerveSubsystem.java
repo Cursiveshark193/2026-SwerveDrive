@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.function.Supplier;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -113,6 +114,23 @@ public class SwerveSubsystem extends SubsystemBase {
     return run(() -> {
       swerveDrive.driveFieldOriented(velocity.get());
     });
+  }
+  public Command centerModulesCommand()
+  {
+    return run(() -> Arrays.asList(swerveDrive.getModules())
+                           .forEach(it -> it.setAngle(0.0)));
+  }
+
+   /**
+   * Lock the swerve drive to prevent it from moving.
+   */
+  public void lock()
+  {
+    swerveDrive.lockPose();
+  }
+   public void setMotorBrake(boolean brake)
+  {
+    swerveDrive.setMotorIdleMode(brake);
   }
  
   
