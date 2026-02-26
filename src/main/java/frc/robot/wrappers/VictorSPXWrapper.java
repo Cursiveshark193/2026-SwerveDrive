@@ -4,6 +4,9 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.AngularAccelerationUnit;
+import edu.wpi.first.units.measure.Velocity;
+import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
@@ -18,6 +21,7 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorFactory;
 
 import java.util.Optional;
+import java.util.OptionalDouble;
 
 /**
  * Small adapter that exposes a VictorSPX as a YAMS SmartMotorController.
@@ -471,5 +475,17 @@ public class VictorSPXWrapper extends SmartMotorController {
   @Override
   public Pair<java.util.Optional<java.util.List<yams.telemetry.SmartMotorControllerTelemetry.BooleanTelemetryField>>, java.util.Optional<java.util.List<yams.telemetry.SmartMotorControllerTelemetry.DoubleTelemetryField>>> getUnsupportedTelemetryFields() {
     return new Pair<>(Optional.empty(), Optional.empty());
+  }
+
+  @Override
+  public void setMotionProfileMaxJerk(Velocity<AngularAccelerationUnit> maxJerk) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'setMotionProfileMaxJerk'");
+  }
+
+  @Override
+  public void setExponentialProfile(OptionalDouble kV, OptionalDouble kA, Optional<Voltage> maxInput) {
+    // TODO Auto-generated method stub
+    throw new UnsupportedOperationException("Unimplemented method 'setExponentialProfile'");
   }
 }

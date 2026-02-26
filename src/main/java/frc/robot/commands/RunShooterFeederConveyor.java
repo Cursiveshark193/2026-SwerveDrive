@@ -5,10 +5,7 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
-import static edu.wpi.first.units.Units.RPM;
-
 import frc.robot.subsystems.FeederSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.conveyor;
 
 public class RunShooterFeederConveyor extends ParallelCommandGroup {

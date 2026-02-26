@@ -5,7 +5,6 @@
 package frc.robot; // root package for robot code
 
 import frc.robot.Constants.OperatorConstants; // operator constants (joystick ports, deadbands)
-import frc.robot.commands.RunShooterFeederConveyor;
 import frc.robot.subsystems.ShooterSubsystem; // shooter subsystem
 import frc.robot.subsystems.SwerveSubsystem; // swerve drive subsystem
 import frc.robot.subsystems.arm;
@@ -51,11 +50,7 @@ public class RobotContainer {
 
   // private final Climber m_Climber = new Climber();
   private final FeederSubsystem m_ShooterFeeder = new FeederSubsystem(); // example second mechanism for shooter feeder
-                                                                         // (can also be in its own subsystem if
-                                                                         // desired)
-  // m_ShooterFeeder,
-  private final RunShooterFeederConveyor m_exampleCommand = new RunShooterFeederConveyor(m_ShooterFeeder, m_conveyor); // example
-                                                                                                                       // command
+                                                                         // command
                                                                                                                        // that
                                                                                                                        // uses
                                                                                                                        // multiple
