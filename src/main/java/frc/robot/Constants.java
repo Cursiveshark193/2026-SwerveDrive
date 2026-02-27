@@ -21,5 +21,5 @@ public final class Constants {
     public static final int kOperatorControllerPort = 1;
   }
 
-public static final double MAX_SPEED = Units.feetToMeters(4.5);;
+public static final double MAX_SPEED = Units.feetToMeters(3.5);
 }
