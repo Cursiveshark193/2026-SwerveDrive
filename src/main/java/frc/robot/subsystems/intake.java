@@ -63,7 +63,7 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
       // You could also use .withGearing(5) which does the same thing.
       .withGearing(new MechanismGearing(GearBox.fromReductionStages(5))) // mechanism gearing config
       // Motor properties to prevent over currenting.
-      .withMotorInverted(false) // motor inversion setting
+      .withMotorInverted(true) // motor inversion setting
       .withIdleMode(MotorMode.COAST) // idle/coast behavior
       .withStatorCurrentLimit(Amps.of(40)); // stator current limit to protect hardware
 
@@ -85,7 +85,7 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
       // Mass of the flywheel.
       .withMass(Pounds.of(12)) // set flywheel mass
       // Maximum speed of the shooter.
-      .withUpperSoftLimit(RPM.of(200)) // set upper soft speed limit
+      .withUpperSoftLimit(RPM.of(2000)) // set upper soft speed limit
       // Telemetry name and verbosity for the arm.
       .withTelemetry("intakeMech", TelemetryVerbosity.HIGH); // telemetry label for mechanism
 
@@ -110,8 +110,8 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
    * @return {@link edu.wpi.first.wpilibj2.command.RunCommand}
    */
  
-public Command IntakeOn(AngularVelocity speed) {
-  return intake.setSpeed(speed); // example command to set flywheel to 400 RPM
+public Command IntakeOn() {
+  return intake.set(1); // example command to set flywheel to 400 RPM
 }
   
 public Command IntakeOff() {
@@ -119,7 +119,7 @@ public Command IntakeOff() {
 }
 
 public Command ReverseIntake() {
-  return intake.set(-0.3); // example command to run intake in reverse at 30% and conveyor at 50% (replace with desired speeds)
+  return intake.set(-1); // example command to run intake in reverse at 30% and conveyor at 50% (replace with desired speeds)
 }
 
   /** Create a new Intake subsystem. */

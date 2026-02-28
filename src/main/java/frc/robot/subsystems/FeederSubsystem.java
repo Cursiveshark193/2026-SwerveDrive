@@ -11,6 +11,7 @@ import static edu.wpi.first.units.Units.RPM;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,9 +26,10 @@ import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
 import yams.motorcontrollers.local.SparkWrapper;
-public class conveyor extends SubsystemBase {
+public class FeederSubsystem extends SubsystemBase {
     private SmartMotorControllerConfig ConveyorConfig = new SmartMotorControllerConfig(this) // separate config for conveyor if needed (can also reuse smcConfig if settings are the same)
       .withControlMode(ControlMode.CLOSED_LOOP) // example open-loop control mode
+      .withFollowers(Pair.of(new SparkMax(20, MotorType.kBrushless), true))
       .withClosedLoopController(0, 0, 0, DegreesPerSecond.of(30), DegreesPerSecondPerSecond.of(45)) // example PID constants +
                                                                                                     // safety
                                                                                                     // velocity/accel
@@ -40,30 +42,30 @@ public class conveyor extends SubsystemBase {
       .withMotorInverted(false) // motor inversion settingATRIBUTEFGREF
       .withIdleMode(MotorMode.COAST) // idle/coast behavior
       .withStatorCurrentLimit(Amps.of(40)); // stator current limit to protect hardware
+      
 
-  private SparkMax conveyorSpark = new SparkMax(16, MotorType.kBrushless); // example second SparkMax for conveyor on CAN ID 17
-  // Create SmartMotorController for conveyor SparkMax with its config and motor model (NEO550)
+  private SparkMax conveyorSpark = new SparkMax(19, MotorType.kBrushless);
   private SmartMotorController conveyorSmartMotorController = new SparkWrapper(conveyorSpark, DCMotor.getNEO(1), ConveyorConfig); // wrap second SparkMax with SmartMotorController for conveyor
 
   private final FlyWheelConfig conveyorConfig = new FlyWheelConfig(conveyorSmartMotorController) // mechanism config for conveyor
       .withDiameter(Inches.of(2)) // example diameter for conveyor roller
       .withMass(Pounds.of(5)) // example mass for conveyor roller
-      .withUpperSoftLimit(RPM.of(10000)) // example upper soft speed limit for conveyor
-      .withTelemetry("conveyorMech", TelemetryVerbosity.HIGH); // telemetry label for conveyor mechanism
+      .withUpperSoftLimit(RPM.of(100)) // example upper soft speed limit for conveyor
+      .withTelemetry("Feeder", TelemetryVerbosity.HIGH); // telemetry label for conveyor mechanism
 
-public FlyWheel conveyor = new FlyWheel(conveyorConfig); // example second mechanism for conveyor)
+public FlyWheel feeder = new FlyWheel(conveyorConfig); // example second mechanism for conveyor)
 
-  public Command RunConveyor () {
-    return conveyor.set(0.4); // example command to set flywheel to desired speed
+  public Command RunFeeder () {
+    return feeder.set(1); // example command to set flywheel to 100 RPM (replace with desired speed)
   }
- public Command StopConveyor() {
-   return conveyor.setSpeed(RPM.of(0)); // command to stop conveyor
+ public Command StopFeeder() {
+   return feeder.setSpeed(RPM.of(0)); // command to stop conveyor
  }
- public Command ReverseConveyor() {
-   return conveyor.set(-0.4); // example command to run conveyor in reverse at 30% (replace with desired speed)
+ public Command ReverseFeeder() {
+   return feeder.set(-1); // example command to run conveyor in reverse at 30% (replace with desired speed)
  }
  
-public conveyor() {
+public FeederSubsystem() {
     
 }
 /**
@@ -94,11 +96,11 @@ public conveyor() {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    conveyor.updateTelemetry();  }
+    feeder.updateTelemetry();  }
 
   @Override
   public void simulationPeriodic() {
-    conveyor.simIterate();
+    feeder.simIterate();
   }
 }
 
