@@ -15,7 +15,9 @@ import swervelib.SwerveInputStream; // helper to build swerve input streams
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d; // 2D rotation helper
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotBase; // robot base utility (simulation check)
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -94,69 +96,58 @@ public class RobotContainer {
     // Choose a default drive command depending on whether we're in sim
     m_arm.setDefaultCommand(m_arm.set(0));
     m_ShooterFeeder.setDefaultCommand(m_ShooterFeeder.StopFeeder());
-    drivebase.setDefaultCommand(
-        !RobotBase.isSimulation() ? driveFieldOrientedAngularVelocity : driveFieldOrientedDirectAngleKeyboard);
+        
   }
 
-  SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(), // build input stream from
-                                                                                            // controller axes
-      () -> m_driverController.getLeftY() * -1, // forward/back (invert axis)
-      () -> m_driverController.getLeftX() * -1) // strafe (invert axis)
-      .withControllerRotationAxis(m_driverController::getRightX) // rotation from right stick X
-      .deadband(OperatorConstants.DEADBAND) // apply deadband
-      .scaleTranslation(0.8) // scale translational speed
-      .allianceRelativeControl(true); // make controls alliance-relative
+    SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
+                                                                () -> m_driverController.getLeftY() * -1,
+                                                                () -> m_driverController.getLeftX() * -1)
+                                                            .withControllerRotationAxis(m_driverController::getRightX)
+                                                            .deadband(OperatorConstants.DEADBAND)
+                                                            .scaleTranslation(0.8)
+                                                            .allianceRelativeControl(true);
 
-  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy()
-      .withControllerHeadingAxis(m_driverController::getRightX, // derive heading vector from right stick
-          m_driverController::getRightY)
-      .deadband(0.15)
-      .headingWhile(true); // hold heading while condition true
+  /**
+   * Clone's the angular velocity input stream and converts it to a fieldRelative input stream.
+   */
+  SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(m_driverController::getRightX,
+                                                                                             m_driverController::getRightY)
+                                                           .headingWhile(true);
 
-  Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle); // command for field-oriented
-                                                                                          // driving using direct-angle
-                                                                                          // input
+  /**
+   * Clone's the angular velocity input stream and converts it to a robotRelative input stream.
+   */
+  SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
+                                                             .allianceRelativeControl(false);
 
-  Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity); // command for
-                                                                                                  // field-oriented
-                                                                                                  // driving using
-                                                                                                  // angular velocity
-                                                                                                  // input
-
-  SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(), // keyboard/alternate
-                                                                                                    // mapping variant
-      () -> -m_driverController.getLeftY(), // forward/back
-      () -> -m_driverController.getLeftX()) // strafe
-      .withControllerRotationAxis(() -> m_driverController.getRawAxis(
-          2)) // rotation axis from raw axis 2
-      .deadband(OperatorConstants.DEADBAND) // deadband
-      .scaleTranslation(0.8) // translation scaling
-      .allianceRelativeControl(true); // alliance relative
-  // Derive the heading axis with math (alternate mapping for keyboard/controller)
-  SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
-      .withControllerHeadingAxis(() -> Math.sin(
-          m_driverController.getRawAxis(
-              2) *
-              Math.PI)
-          *
-          (Math.PI *
-              2),
-          () -> Math.cos(
-              m_driverController.getRawAxis(
-                  2) *
-                  Math.PI)
-              *
-              (Math.PI *
-                  2)) // heading vector math from raw axis
-      .headingWhile(true) // hold heading while true
-      .translationHeadingOffset(true) // enable translation heading offset
-      .translationHeadingOffset(Rotation2d.fromDegrees(
-          0)); // offset in degrees
-
-  Command driveFieldOrientedDirectAngleKeyboard = drivebase.driveFieldOriented(driveDirectAngleKeyboard); // drive
-                                                                                                          // command for
-                                                                                                          // keyboard/direct-angle
-
+  SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(),
+                                                                        () -> -m_driverController.getLeftY(),
+                                                                        () -> -m_driverController.getLeftX())
+                                                                    .withControllerRotationAxis(() -> m_driverController.getRawAxis(
+                                                                        2))
+                                                                    .deadband(OperatorConstants.DEADBAND)
+                                                                    .scaleTranslation(0.8)
+                                                                    .allianceRelativeControl(true);
+  // Derive the heading axis with math!
+  SwerveInputStream driveDirectAngleKeyboard     = driveAngularVelocityKeyboard.copy()
+                                                                               .withControllerHeadingAxis(() ->
+                                                                                                              Math.sin(
+                                                                                                                  m_driverController.getRawAxis(
+                                                                                                                      2) *
+                                                                                                                  Math.PI) *
+                                                                                                              (Math.PI *
+                                                                                                               2),
+                                                                                                          () ->
+                                                                                                              Math.cos(
+                                                                                                                  m_driverController.getRawAxis(
+                                                                                                                      2) *
+                                                                                                                  Math.PI) *
+                                                                                                              (Math.PI *
+                                                                                                               2))
+                                                                               .headingWhile(true)
+                                                                               .translationHeadingOffset(true)
+                                                                               .translationHeadingOffset(Rotation2d.fromDegrees(
+                                                                                   0));
   /**
    * Use this method to define your trigger->command mappings. Triggers can be
    * created via the
@@ -177,7 +168,18 @@ public class RobotContainer {
    * up to commands that operate subsystems (for example, spinning the shooter
    * or running the intake).
    */
-  private void configureBindings() { // map controller inputs to commands
+  private void configureBindings() { 
+     Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
+    Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+    Command driveRobotOrientedAngularVelocity  = drivebase.driveFieldOriented(driveRobotOriented);
+    Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(
+        driveDirectAngle);
+    Command driveFieldOrientedDirectAngleKeyboard      = drivebase.driveFieldOriented(driveDirectAngleKeyboard);
+    Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
+    Command driveSetpointGenKeyboard = drivebase.driveWithSetpointGeneratorFieldRelative(
+        driveDirectAngleKeyboard);
+    
+    // map controller inputs to commands
     m_operatorController.a().whileTrue(m_Intake.IntakeOn().alongWith(m_conveyor.ReverseConveyor())); // hold A on
                                                                                                      // operator
                                                                                                      // controller to
@@ -187,11 +189,11 @@ public class RobotContainer {
                                                                   // reverse at 3000 RPM
     m_operatorController.rightBumper().whileTrue(Commands.sequence(
         Commands.waitSeconds(0.125)
-            .andThen(m_Shooter.setDutyCycle(1.0))) // run shooter at 4000 RPM for 0.25 seconds to get up to speed
+            .andThen(m_Shooter.setDutyCycle(0.75))) // run shooter at 4000 RPM for 0.25 seconds to get up to speed
         .alongWith(
             Commands.parallel(
                 // keep shooter running at 4000 RPM,
-                Commands.waitSeconds(3)
+                Commands.waitSeconds(4)
                     .andThen(m_ShooterFeeder.ReverseFeeder().alongWith(m_conveyor.ReverseConveyor())
                         .alongWith(m_Intake.IntakeOn()
                             .alongWith(m_arm.set(0.15)
@@ -201,10 +203,15 @@ public class RobotContainer {
                                     .withTimeout(0.5))
                                 .repeatedly()))))));
     m_driverController.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+    m_driverController.b().whileTrue(drivebase.driveToPose(new Pose2d(new Translation2d(2.880, 4), Rotation2d.fromDegrees(0)))); // hold B on driver controller to reset
+                                                                          // heading to 0 degrees
     m_driverController.start().whileTrue(drivebase.centerModulesCommand());
     m_operatorController.leftBumper().whileTrue(Commands.parallel(m_ShooterFeeder.RunFeeder().alongWith(m_conveyor.RunConveyor())));
     m_operatorController.povDown().whileTrue(m_arm.set(-0.1)); // hold X to move arm to 45 degrees
     m_operatorController.povUp().whileTrue(m_arm.set(0.1)); // hold Y to move arm back to 0 degrees
+    if m_driverController.back().getAsBoolean(){
+        drivebase.
+    }
   }
 
   /**
@@ -219,7 +226,7 @@ public class RobotContainer {
         m_arm.set(-0.15).withTimeout(0.25)),
         (Commands.sequence(
         Commands.waitSeconds(0.125)
-            .andThen(m_Shooter.setDutyCycle(1.0))) // run shooter at 4000 RPM for 0.25 seconds to get up to speed
+            .andThen(m_Shooter.setDutyCycle(0.6))) // run shooter at 4000 RPM for 0.25 seconds to get up to speed
         .alongWith(
             Commands.parallel(
                 // keep shooter running at 4000 RPM,
