@@ -179,39 +179,52 @@ public class RobotContainer {
     Command driveSetpointGenKeyboard = drivebase.driveWithSetpointGeneratorFieldRelative(
         driveDirectAngleKeyboard);
     
-    // map controller inputs to commands
-    m_operatorController.a().whileTrue(m_Intake.IntakeOn().alongWith(m_conveyor.ReverseConveyor())); // hold A on
-                                                                                                     // operator
-                                                                                                     // controller to
-                                                                                                     // run intake at
-                                                                                                     // 3000 RPM
-    m_operatorController.b().whileTrue(m_Intake.ReverseIntake()); // hold B on operator controller to run intake in
-                                                                  // reverse at 3000 RPM
+    /*
+     * Operator controls:
+     * - Hold A button to run intake at 3000 RPM and reverse conveyor to help feed balls into the shooter
+     * - Hold B button to run intake in reverse at 3000 RPM to eject balls
+     * - Hold right bumper to run shooter at 4000 RPM and reverse feeder and conveyor to feed balls into the shooter for 4 seconds (good for shooting preloaded balls in auto)
+     * - Hold X button to move arm to 45 degrees, then back to 0 degrees, repeatedly until released (good for controlling an arm to pick up game pieces and place them on the ground or a low goal)
+     * - Hold left bumper to run feeder and conveyor to feed balls into the shooter without running the shooter (good for testing feeder and conveyor without needing to spin up the shooter)  
+     * - Hold D-pad down to move arm up, hold D-pad up to move arm back to 0 degrees (alternative controls for the arm if you don't want it to be a repeated sequence)
+     */
+    m_operatorController.a().whileTrue(m_Intake.IntakeOn().alongWith(m_conveyor.ReverseConveyor())); 
+    m_operatorController.b().whileTrue(m_Intake.ReverseIntake()); 
     m_operatorController.rightBumper().whileTrue(Commands.sequence(
         Commands.waitSeconds(0.125)
-            .andThen(m_Shooter.setDutyCycle(0.75))) // run shooter at 4000 RPM for 0.25 seconds to get up to speed
+            .andThen(m_Shooter.setDutyCycle(0.75)))
         .alongWith(
             Commands.parallel(
-                // keep shooter running at 4000 RPM,
                 Commands.waitSeconds(4)
                     .andThen(m_ShooterFeeder.ReverseFeeder().alongWith(m_conveyor.ReverseConveyor())
                         .alongWith(m_Intake.IntakeOn()
-                            .alongWith(m_arm.set(0.15)
+                            ))))); 
+    m_operatorController.x().whileTrue(m_arm.set(0.15)
                                 .withTimeout(0.5)
                                 .andThen(m_arm.set(-0.15)
                                     .repeatedly()
                                     .withTimeout(0.5))
-                                .repeatedly()))))));
-    m_driverController.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-    m_driverController.b().whileTrue(drivebase.driveToPose(new Pose2d(new Translation2d(2.880, 4), Rotation2d.fromDegrees(0)))); // hold B on driver controller to reset
-                                                                          // heading to 0 degrees
-    m_driverController.start().whileTrue(drivebase.centerModulesCommand());
+                                .repeatedly());
     m_operatorController.leftBumper().whileTrue(Commands.parallel(m_ShooterFeeder.RunFeeder().alongWith(m_conveyor.RunConveyor())));
     m_operatorController.povDown().whileTrue(m_arm.set(-0.1)); // hold X to move arm to 45 degrees
     m_operatorController.povUp().whileTrue(m_arm.set(0.1)); // hold Y to move arm back to 0 degrees
-    if m_driverController.back().getAsBoolean(){
-        drivebase.
-    }
+   
+   /*
+    * Drive controls:
+    * - Back button toggles between field-oriented and robot-oriented control
+        * - Hold B button to reset heading to 0 degrees
+        * - Hold left bumper to lock swerve modules in an X pattern for stability when picking up game pieces
+        * - Hold start button to run command that uses swerve drive's module state optimization to center the modules (good for balancing on the charge station)
+        * Default is field-oriented control with robot-relative heading control on the right stick (hold back button to use controller rotation axis for heading control instead of field-relative angle control)
+    */
+
+    m_driverController.back().toggleOnTrue(driveRobotOrientedAngularVelocity); // toggle back button on driver controller to switch to robot-oriented control
+    m_driverController.back().toggleOnFalse(driveFieldOrientedAnglularVelocity); // toggle back button on driver controller to switch back to field-oriented control
+    m_driverController.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+    m_driverController.b().whileTrue(drivebase.driveToPose(new Pose2d(new Translation2d(2.880, 4), Rotation2d.fromDegrees(0)))); // hold B on driver controller to reset
+                                                                          // heading to 0 degrees   
+    m_driverController.start().whileTrue(drivebase.centerModulesCommand());
+
   }
 
   /**
@@ -233,12 +246,8 @@ public class RobotContainer {
                 Commands.waitSeconds(3)
                     .andThen(m_ShooterFeeder.ReverseFeeder().alongWith(m_conveyor.ReverseConveyor())
                         .alongWith(m_Intake.IntakeOn()
-                            .alongWith(m_arm.set(0.15)
-                                .withTimeout(0.5)
-                                .andThen(m_arm.set(-0.15)
-                                    .repeatedly()
-                                    .withTimeout(0.5))
-                                .repeatedly()))))))); // run the shooter/feeder/conveyor for 3 seconds
+                            )))))); // run the shooter/feeder/conveyor for 3 seconds
+
 
     // run the selected auto from the chooser
     // then run the shooter, feeder, and conveyor for 3 seconds;
