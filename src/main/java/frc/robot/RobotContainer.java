@@ -12,6 +12,9 @@ import frc.robot.subsystems.conveyor;
 import frc.robot.subsystems.intake;
 import frc.robot.subsystems.FeederSubsystem; // example second mechanism subsystem for shooter feeder
 import swervelib.SwerveInputStream; // helper to build swerve input streams
+
+import static edu.wpi.first.units.Units.RPM;
+
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 
@@ -19,7 +22,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d; // 2D rotation helper
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotBase; // robot base utility (simulation check)
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command; // WPILib command interface
@@ -75,6 +77,7 @@ public class RobotContainer {
    * and sets default commands for subsystems.
    */
   public RobotContainer() {
+    
     // Configure the trigger bindings
     DriverStation.silenceJoystickConnectionWarning(true);
     configureBindings(); // set up button->command mappings
@@ -93,7 +96,6 @@ public class RobotContainer {
     m_Shooter.setDefaultCommand(m_Shooter.Stop()); // default command to stop shooter
     m_conveyor.setDefaultCommand(m_conveyor.StopConveyor()); // default command to stop conveyor
     m_Intake.setDefaultCommand(m_Intake.IntakeOff()); // intake angle default (disabled)
-    // Choose a default drive command depending on whether we're in sim
     m_arm.setDefaultCommand(m_arm.set(0));
     m_ShooterFeeder.setDefaultCommand(m_ShooterFeeder.StopFeeder());
         
@@ -103,6 +105,7 @@ public class RobotContainer {
                                                                 () -> m_driverController.getLeftY() * -1,
                                                                 () -> m_driverController.getLeftX() * -1)
                                                             .withControllerRotationAxis(m_driverController::getRightX)
+                                                            
                                                             .deadband(OperatorConstants.DEADBAND)
                                                             .scaleTranslation(0.8)
                                                             .allianceRelativeControl(true);
@@ -170,14 +173,11 @@ public class RobotContainer {
    */
   private void configureBindings() { 
      Command driveFieldOrientedDirectAngle      = drivebase.driveFieldOriented(driveDirectAngle);
-    Command driveFieldOrientedAnglularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+    Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
     Command driveRobotOrientedAngularVelocity  = drivebase.driveFieldOriented(driveRobotOriented);
     Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(
         driveDirectAngle);
-    Command driveFieldOrientedDirectAngleKeyboard      = drivebase.driveFieldOriented(driveDirectAngleKeyboard);
-    Command driveFieldOrientedAnglularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
-    Command driveSetpointGenKeyboard = drivebase.driveWithSetpointGeneratorFieldRelative(
-        driveDirectAngleKeyboard);
+   
     
     /*
      * Operator controls:
@@ -188,11 +188,11 @@ public class RobotContainer {
      * - Hold left bumper to run feeder and conveyor to feed balls into the shooter without running the shooter (good for testing feeder and conveyor without needing to spin up the shooter)  
      * - Hold D-pad down to move arm up, hold D-pad up to move arm back to 0 degrees (alternative controls for the arm if you don't want it to be a repeated sequence)
      */
-    m_operatorController.a().whileTrue(m_Intake.IntakeOn().alongWith(m_conveyor.ReverseConveyor())); 
+    m_operatorController.a().whileTrue(m_Intake.IntakeOn().alongWith(m_conveyor.RunConveyor())); 
     m_operatorController.b().whileTrue(m_Intake.ReverseIntake()); 
     m_operatorController.rightBumper().whileTrue(Commands.sequence(
         Commands.waitSeconds(0.125)
-            .andThen(m_Shooter.setDutyCycle(0.75)))
+            .andThen(m_Shooter.setVelocity(RPM.of(4000))))
         .alongWith(
             Commands.parallel(
                 Commands.waitSeconds(4)
@@ -211,15 +211,14 @@ public class RobotContainer {
    
    /*
     * Drive controls:
-    * - Back button toggles between field-oriented and robot-oriented control
+    * - right bumper toggles between field-oriented and robot-oriented control
         * - Hold B button to reset heading to 0 degrees
-        * - Hold left bumper to lock swerve modules in an X pattern for stability when picking up game pieces
+        * - Hold left bumper to lock swerve modules in an X pattern for stability when shooting game pieces
         * - Hold start button to run command that uses swerve drive's module state optimization to center the modules (good for balancing on the charge station)
         * Default is field-oriented control with robot-relative heading control on the right stick (hold back button to use controller rotation axis for heading control instead of field-relative angle control)
     */
-
-    m_driverController.back().toggleOnTrue(driveRobotOrientedAngularVelocity); // toggle back button on driver controller to switch to robot-oriented control
-    m_driverController.back().toggleOnFalse(driveFieldOrientedAnglularVelocity); // toggle back button on driver controller to switch back to field-oriented control
+    drivebase.setDefaultCommand(driveRobotOrientedAngularVelocity); // default to field-oriented control with robot-relative heading control
+    m_driverController.rightBumper().whileTrue(driveFieldOrientedAngularVelocity); // right bumper on driver controller to switch to robot-oriented control
     m_driverController.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
     m_driverController.b().whileTrue(drivebase.driveToPose(new Pose2d(new Translation2d(2.880, 4), Rotation2d.fromDegrees(0)))); // hold B on driver controller to reset
                                                                           // heading to 0 degrees   
@@ -238,15 +237,17 @@ public class RobotContainer {
         autoChooser.getSelected().alongWith(
         m_arm.set(-0.15).withTimeout(0.25)),
         (Commands.sequence(
+        Commands.parallel(
         Commands.waitSeconds(0.125)
-            .andThen(m_Shooter.setDutyCycle(0.6))) // run shooter at 4000 RPM for 0.25 seconds to get up to speed
+            .andThen(m_Shooter.setDutyCycle(0.6))
+            .alongWith(m_conveyor.ReverseConveyor().withTimeout(0.05))) // run shooter at 4000 RPM for 0.25 seconds to get up to speed
         .alongWith(
             Commands.parallel(
                 // keep shooter running at 4000 RPM,
                 Commands.waitSeconds(3)
-                    .andThen(m_ShooterFeeder.ReverseFeeder().alongWith(m_conveyor.ReverseConveyor())
+                    .andThen(m_ShooterFeeder.ReverseFeeder().alongWith(m_conveyor.RunConveyor())
                         .alongWith(m_Intake.IntakeOn()
-                            )))))); // run the shooter/feeder/conveyor for 3 seconds
+                            ))))))); // run the shooter/feeder/conveyor for 3 seconds
 
 
     // run the selected auto from the chooser

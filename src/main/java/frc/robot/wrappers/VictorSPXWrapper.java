@@ -479,13 +479,13 @@ public class VictorSPXWrapper extends SmartMotorController {
 
   @Override
   public void setMotionProfileMaxJerk(Velocity<AngularAccelerationUnit> maxJerk) {
-    // TODO Auto-generated method stub
+    // TOO Auto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'setMotionProfileMaxJerk'");
   }
 
   @Override
   public void setExponentialProfile(OptionalDouble kV, OptionalDouble kA, Optional<Voltage> maxInput) {
-    // TODO Auto-generated method stub
+    // TODAuto-generated method stub
     throw new UnsupportedOperationException("Unimplemented method 'setExponentialProfile'");
   }
 }
