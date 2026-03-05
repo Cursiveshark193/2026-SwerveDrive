@@ -235,7 +235,7 @@ public class RobotContainer {
     return new SequentialCommandGroup(
         
         autoChooser.getSelected().alongWith(
-        m_arm.set(-0.15).withTimeout(0.25)),
+        m_arm.set(-0.15).withTimeout(0.25).alongWith(m_Intake.IntakeOn().withTimeout(6))),
         (Commands.sequence(
         Commands.parallel(
         Commands.waitSeconds(0.125)
