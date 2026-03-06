@@ -196,7 +196,7 @@ public class RobotContainer {
         .alongWith(
             Commands.parallel(
                 Commands.waitSeconds(4)
-                    .andThen(m_ShooterFeeder.ReverseFeeder().alongWith(m_conveyor.ReverseConveyor())
+                    .andThen(m_ShooterFeeder.ReverseFeeder().alongWith(m_conveyor.RunConveyor())
                         .alongWith(m_Intake.IntakeOn()
                             ))))); 
     m_operatorController.x().whileTrue(m_arm.set(0.15)
@@ -207,7 +207,7 @@ public class RobotContainer {
                                 .repeatedly());
     m_operatorController.leftBumper().whileTrue(Commands.parallel(m_ShooterFeeder.RunFeeder().alongWith(m_conveyor.RunConveyor())));
     m_operatorController.povDown().whileTrue(m_arm.set(-0.1)); // hold X to move arm to 45 degrees
-    m_operatorController.povUp().whileTrue(m_arm.set(0.1)); // hold Y to move arm back to 0 degrees
+    m_operatorController.povUp().whileTrue(m_arm.set(0.2)); // hold Y to move arm back to 0 degrees
    
    /*
     * Drive controls:
@@ -233,21 +233,20 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return new SequentialCommandGroup(
-        
-        autoChooser.getSelected().alongWith(
-        m_arm.set(-0.15).withTimeout(0.25).alongWith(m_Intake.IntakeOn().withTimeout(6))),
+        //m_arm.set(-0.15).withTimeout(0.25),
+        autoChooser.getSelected(),
         (Commands.sequence(
         Commands.parallel(
-        Commands.waitSeconds(0.125)
-            .andThen(m_Shooter.setDutyCycle(0.6))
-            .alongWith(m_conveyor.ReverseConveyor().withTimeout(0.05))) // run shooter at 4000 RPM for 0.25 seconds to get up to speed
+                          Commands.waitSeconds(0.125)
+            .andThen(m_Shooter.setVelocity(RPM.of(4000)))
+            // run shooter at 4000 RPM for 0.25 seconds to get up to speed
         .alongWith(
-            Commands.parallel(
+                   Commands.parallel(
                 // keep shooter running at 4000 RPM,
                 Commands.waitSeconds(3)
                     .andThen(m_ShooterFeeder.ReverseFeeder().alongWith(m_conveyor.RunConveyor())
                         .alongWith(m_Intake.IntakeOn()
-                            ))))))); // run the shooter/feeder/conveyor for 3 seconds
+                            )))))))); // run the shooter/feeder/conveyor for 3 seconds
 
 
     // run the selected auto from the chooser

@@ -83,9 +83,9 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
       // Diameter of the flywheel.
       .withDiameter(Inches.of(4)) // set flywheel diameter
       // Mass of the flywheel.
-      .withMass(Pounds.of(12)) // set flywheel mass
+      .withMass(Pounds.of(1)) // set flywheel mass
       // Maximum speed of the shooter.
-      .withUpperSoftLimit(RPM.of(2000)) // set upper soft speed limit
+      .withUpperSoftLimit(RPM.of(5000)) // set upper soft speed limit
       // Telemetry name and verbosity for the arm.
       .withTelemetry("intakeMech", TelemetryVerbosity.HIGH); // telemetry label for mechanism
 
@@ -111,7 +111,7 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
    */
  
 public Command IntakeOn() {
-  return intake.set(1); // example command to set flywheel to 400 RPM
+  return intake.setSpeed(RPM.of(2500)); // example command to set flywheel to 400 RPM
 }
   
 public Command IntakeOff() {
