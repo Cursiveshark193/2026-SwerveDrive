@@ -111,7 +111,7 @@ public class intake extends SubsystemBase { // intake subsystem for ball handlin
    */
  
 public Command IntakeOn() {
-  return intake.setSpeed(RPM.of(2500)); // example command to set flywheel to 400 RPM
+  return intake.set(0.75); // example command to set flywheel to 400 RPM
 }
   
 public Command IntakeOff() {
@@ -121,6 +121,7 @@ public Command IntakeOff() {
 public Command ReverseIntake() {
   return intake.set(-1); // example command to run intake in reverse at 30% and conveyor at 50% (replace with desired speeds)
 }
+
 
   /** Create a new Intake subsystem. */
   public intake() {

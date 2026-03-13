@@ -11,19 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Path 1 Red - Outpost 1"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 3.0
-                }
-              },
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Path 1 Red - Outpost 2"
+                  "pathName": "Path - Blue Right"
                 }
               }
             ]
